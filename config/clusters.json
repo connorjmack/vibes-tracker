@@ -1,0 +1,22 @@
+{
+  "libs": [
+    "@PodSaveAmerica",
+    "@TheRachelMaddowShow"
+  ],
+  "right": [
+    "@TheBenShapiroShow",
+    "@FoxNews"
+  ],
+  "my-env": [
+    "@Kurzgesagt",
+    "@OurChangingClimate"
+  ],
+  "mainstream": [
+    "@NBCNews",
+    "@CNN"
+  ],
+  "manosphere": [
+    "@JordanBPeterson",
+    "@FreshandFit"
+  ]
+}

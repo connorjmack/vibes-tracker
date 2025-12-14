@@ -8,7 +8,6 @@ venv/
 # Data and Outputs (often large)
 data/
 *.csv
-*.json
 __pycache__/
 
 # IDE/OS files
