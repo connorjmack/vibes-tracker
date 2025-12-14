@@ -56,3 +56,6 @@ This creates `data/cluster_data.csv` and the `data/channel_ids.json` cache.
 
 ```bash
 python src/ingest.py
+
+
+![Topics across all clusters](figures/combined_titles_wordcloud_styled.png)
