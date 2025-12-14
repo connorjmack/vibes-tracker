@@ -2,19 +2,7 @@
 
 ## Cluster Analysis & Narrative Monitoring with Gemini AI
 
-This project is an advanced AI agent designed to monitor, categorize, and analyze narrative trends across groups of ideologically similar YouTube channels. Instead of analyzing single creators, it detects the shared "zeitgeist" or "hive mind" of defined content clusters (e.g., `libs`, `manosphere`, `my-env`).
-
----
-
-### Key Features and Professional Practices
-
-| Feature | Description | Professional Skill Demonstrated |
-| :--- | :--- | :--- |
-| **Cluster Ingestion** | Fetches the latest 30 video titles/metadata for pre-defined channel clusters from `config/clusters.json`. | Config-driven development, ETL Pipeline |
-| **Quota Optimization** | Uses a local JSON cache (`data/channel_ids.json`) to store permanent Channel IDs, bypassing expensive `search().list` API calls on subsequent runs to stay within the 10,000 unit daily limit. | Performance optimization, Cost-Aware Development |
-| **AI Tagging (RAG)** | Fetches video transcripts and uses the **Gemini 1.5 Flash API** to assign structured tags: **Core Themes** and **Overall Sentiment** to every video. | Retrieval-Augmented Generation (RAG), LLM Tool Use |
-| **Time Series Ready** | The final analyzed data is saved with `publish_date`, making it ready for trend visualization (Time Series Analysis). | Data preparation for statistical modeling |
-| **Styled Visualization** | Generates custom-shaped, color-mapped word clouds to quickly visualize the semantic space of each cluster. | Data Visualization (Matplotlib, WordCloud) |
+A tool for creating custom information ecosystems and tracking their content over time – gets the "vibe" of a user-defined set of youtube channels.
 
 ---
 
