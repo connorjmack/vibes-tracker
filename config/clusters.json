@@ -1,22 +1,72 @@
 {
   "libs": [
     "@PodSaveAmerica",
-    "@TheRachelMaddowShow"
+    "@TheRachelMaddowShow",
+    "@TheYoungTurks",
+    "@thedavidpakmanshow",
+    "@MajorityReportRadio",
+    "@BrianTylerCohen",
+    "@MeidasTouch",
+    "@SecularTalk",
+    "@TheRingofFire",
+    "@TheDamageReport",
+    "@TheHumanistReport",
+    "@HasanAbi"
   ],
   "right": [
     "@TheBenShapiroShow",
-    "@FoxNews"
+    "@FoxNews",
+    "@DailyWire",
+    "@StevenCrowder",
+    "@turningpointusa",
+    "@Timcast",
+    "@PragerU",
+    "@MattWalshBlog",
+    "@glennbeck",
+    "@conservativemomma",
+    "@ReasonTV",
+    "@AnthonyBrianLogan"
   ],
   "my-env": [
-    "@Kurzgesagt",
-    "@OurChangingClimate"
+    "@kurzgesagt",
+    "@OurChangingClimate",
+    "@ClimateTown",
+    "@SimonOxfPhys",
+    "@ClimateAdam",
+    "@NASAClimate",
+    "@Vox",
+    "@Andrewism",
+    "@zentouro",
+    "@ConservationIntl",
+    "@ClimateReality",
+    "@UNClimateChange"
   ],
   "mainstream": [
     "@NBCNews",
-    "@CNN"
+    "@CNN",
+    "@ABCNews",
+    "@CBSNews",
+    "@BBCNews",
+    "@MSNBC",
+    "@PBSNewsHour",
+    "@AP",
+    "@Reuters",
+    "@AlJazeeraEnglish",
+    "@DWNews",
+    "@VisualpolitikEN"
   ],
   "manosphere": [
     "@JordanBPeterson",
-    "@FreshandFit"
+    "@FreshandFit",
+    "@PowerfulJRE",
+    "@valuetainment",
+    "@AdinRoss",
+    "@SNEAKO",
+    "@WhateverPodcast",
+    "@BetterBachelor",
+    "@JustPearlyThings",
+    "@alphamalestrategies",
+    "@TheQuartering",
+    "@MrgirlReturns"
   ]
 }
