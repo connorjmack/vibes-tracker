@@ -47,6 +47,8 @@ The agent operates in three distinct, modular stages:
 
 ---
 
+![Topics across all clusters](figures/combined_titles_wordcloud.png)
+
 ### Usage
 
 Run the scripts sequentially from the **project root directory** (`vibes-tracker/`):
