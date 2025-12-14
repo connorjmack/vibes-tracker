@@ -105,7 +105,7 @@ if __name__ == "__main__":
     API_KEY = os.getenv("YOUTUBE_API_KEY")
     
     # 1. Load the cluster data from the config file (relative path from src/)
-    config_path = "../config/clusters.json"
+    config_path = "config/clusters.json"
     try:
         with open(config_path, 'r') as f:
             my_clusters = json.load(f)
