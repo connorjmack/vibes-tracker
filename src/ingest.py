@@ -101,7 +101,7 @@ def ingest_clusters(clusters_config, api_key):
 
 if __name__ == "__main__":
     # Load environment variables from the .env file
-    load_dotenv(dotenv_path="../.env")
+    load_dotenv()
     API_KEY = os.getenv("YOUTUBE_API_KEY")
     
     # 1. Load the cluster data from the config file (relative path from src/)
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     
     # 3. Save the results
     if not df.empty:
-        output_path = "../data/cluster_data.csv"
+        output_path = "/data/cluster_data.csv"
         # Ensure the data directory exists before saving
         os.makedirs(os.path.dirname(output_path), exist_ok=True) 
         

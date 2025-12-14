@@ -3,7 +3,10 @@ google-api-python-client
 youtube-transcript-api
 pandas
 python-dotenv
+matplotlib
+wordcloud
 
 # Future AI/RAG Packages
 langchain-google-genai
 chromadb
+google-genai
