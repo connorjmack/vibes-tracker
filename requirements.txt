@@ -1,0 +1,9 @@
+# Core packages for data handling and API interaction
+google-api-python-client
+youtube-transcript-api
+pandas
+python-dotenv
+
+# Future AI/RAG Packages
+langchain-google-genai
+chromadb

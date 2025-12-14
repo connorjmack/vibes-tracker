@@ -1,0 +1,16 @@
+# Virtual Environment
+.venv/
+venv/
+
+# Secrets and Configs
+.env
+
+# Data and Outputs (often large)
+data/
+*.csv
+*.json
+__pycache__/
+
+# IDE/OS files
+.DS_Store
+*.pyc
