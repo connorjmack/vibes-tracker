@@ -1,0 +1,38 @@
+2025-12-28 14:53:31 - cross-cluster-analysis - INFO - ============================================================
+2025-12-28 14:53:31 - cross-cluster-analysis - INFO - YouTube Vibes Tracker - Cross-Cluster Analysis
+2025-12-28 14:53:31 - cross-cluster-analysis - INFO - ============================================================
+2025-12-28 14:53:31 - cross-cluster-analysis - INFO - Loaded 350 analyzed videos from 5 clusters
+2025-12-28 14:53:31 - cross-cluster-analysis - INFO - Analyzing 5 clusters
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO - 
+📊 Cross-Cluster Comparison Report
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -    Total clusters analyzed: 5
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -    Shared themes (2+ clusters): 1
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO - 
+🌍 Consensus Topics (3+ clusters):
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO - 
+🔒 Echo Chamber Themes (cluster-specific):
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -    libs: 14 unique themes
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - campaign finance
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - climate action
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - climate change
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -    right: 15 unique themes
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - border security
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - constitutional rights
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - election integrity
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -    mainstream: 15 unique themes
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - ai development
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - breaking news
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - cybersecurity
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -    manosphere: 15 unique themes
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - career success
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - custody laws
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - divorce
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -    my-env: 14 unique themes
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - biodiversity loss
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - carbon emissions
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO -       - climate crisis
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO - 
+📈 Sentiment Divergence for Top Topics:
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO - 
+💾 Full report saved to data/cross_cluster_report.json
+2025-12-28 14:53:32 - cross-cluster-analysis - INFO - ============================================================

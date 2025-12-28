@@ -10,6 +10,13 @@ data/
 *.csv
 __pycache__/
 
+# Cache (but keep directory structure)
+data/cache/transcripts/*.txt
+data/cache/analysis/*.json
+
+# Logs
+logs/*.log
+
 # IDE/OS files
 .DS_Store
 *.pyc

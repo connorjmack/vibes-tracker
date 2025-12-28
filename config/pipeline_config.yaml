@@ -1,0 +1,32 @@
+ingest:
+  videos_per_channel: 30
+  cache_channel_ids: true
+  channel_id_cache_path: "data/channel_ids.json"
+
+analysis:
+  model: "gemini-1.5-flash"
+  max_tokens: 64000
+  enable_caching: true
+  cache_dir: "data/cache"
+
+visualization:
+  output_dir: "figures"
+  wordcloud_width: 1200
+  wordcloud_height: 800
+  custom_stopwords:
+    - "video"
+    - "podcast"
+    - "episode"
+    - "watch"
+    - "new"
+    - "today"
+    - "full"
+    - "live"
+
+paths:
+  data_dir: "data"
+  config_dir: "config"
+  cluster_config: "config/clusters.json"
+  cluster_data: "data/cluster_data.csv"
+  analyzed_data: "data/analyzed_data.csv"
+  logs_dir: "logs"

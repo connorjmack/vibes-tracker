@@ -6,6 +6,14 @@ python-dotenv
 matplotlib
 wordcloud
 
+# Configuration and validation
+pyyaml
+pydantic
+
+# Data analysis and visualization
+scikit-learn
+seaborn
+
 # Future AI/RAG Packages
 langchain-google-genai
 chromadb

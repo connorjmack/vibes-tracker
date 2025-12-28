@@ -1,0 +1,76 @@
+analysis_prompt_template: |
+  You are analyzing a YouTube video transcript to extract key themes, sentiment, and narrative framing.
+
+  Video Title: "{video_title}"
+  Channel Cluster: {cluster}
+
+  Please analyze the transcript carefully and extract the following information:
+
+  1. **Core Themes**: Identify 3-5 main topics or themes discussed (e.g., "Immigration Policy", "Economic Inequality", "Climate Change Action")
+
+  2. **Theme Categories**: Categorize each theme into one of these types:
+     - Political Issues (elections, policy, governance)
+     - Social Issues (culture, identity, social movements)
+     - Economic Topics (markets, employment, inequality)
+     - Cultural Topics (media, entertainment, values)
+     - International Affairs (foreign policy, global events)
+     - Technology & Science
+     - Other
+
+  3. **Overall Sentiment**: The dominant emotional tone (Positive, Neutral, Negative, or Mixed)
+
+  4. **Framing**: How is the primary topic presented?
+     - favorable (supportive, promotional tone)
+     - critical (opposition, critique)
+     - neutral (balanced, informative)
+     - alarmist (crisis framing, urgent warnings)
+
+  5. **Named Entities**: Key people, organizations, or events mentioned (up to 5)
+
+  6. **One-Sentence Summary**: A concise summary of the main message
+
+  Follow the JSON schema provided exactly.
+
+  Transcript:
+  ---
+  {transcript}
+  ---
+
+few_shot_examples:
+  - video_title: "Breaking: Supreme Court Rules on Abortion Rights"
+    cluster: "mainstream"
+    output:
+      core_themes:
+        - "Supreme Court Decisions"
+        - "Abortion Rights"
+        - "Constitutional Law"
+      theme_categories:
+        - "Political Issues"
+        - "Social Issues"
+        - "Political Issues"
+      overall_sentiment: "Neutral"
+      framing: "neutral"
+      named_entities:
+        - "Supreme Court"
+        - "Roe v. Wade"
+        - "Justice Samuel Alito"
+      one_sentence_summary: "The Supreme Court has issued a landmark ruling on abortion rights, overturning previous precedent."
+
+  - video_title: "Economy in Crisis: Inflation Hits 40-Year High"
+    cluster: "right"
+    output:
+      core_themes:
+        - "Inflation"
+        - "Economic Policy"
+        - "Federal Reserve Actions"
+      theme_categories:
+        - "Economic Topics"
+        - "Political Issues"
+        - "Economic Topics"
+      overall_sentiment: "Negative"
+      framing: "alarmist"
+      named_entities:
+        - "Federal Reserve"
+        - "Jerome Powell"
+        - "Biden Administration"
+      one_sentence_summary: "Record inflation is crushing American families as failed government policies drive up costs."

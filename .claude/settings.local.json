@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(pip install:*)",
+      "Bash(python src/ingest.py:*)",
+      "Bash(source .venv/bin/activate)",
+      "Bash(timeout 300 python:*)",
+      "Bash(python:*)",
+      "Bash(tee:*)"
+    ]
+  }
+}
