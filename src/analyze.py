@@ -6,8 +6,7 @@ import pandas as pd
 from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from youtube_transcript_api import YouTubeTranscriptApi
-from google import genai
-from google.genai import types
+import requests
 from dotenv import load_dotenv
 from tqdm import tqdm
 
@@ -31,9 +30,11 @@ def get_transcript(video_id, cache_manager, logger):
 
     # Fetch from YouTube
     try:
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-        # Combine list of dictionaries into one big string
-        full_text = " ".join([t['text'] for t in transcript_list])
+        api = YouTubeTranscriptApi()
+        transcript_list = api.fetch(video_id)
+        # Combine transcript snippets into one big string
+        # New API returns FetchedTranscriptSnippet objects with .text attribute
+        full_text = " ".join([snippet.text for snippet in transcript_list])
 
         # Save to cache
         cache_manager.save_transcript(video_id, full_text)
@@ -43,122 +44,97 @@ def get_transcript(video_id, cache_manager, logger):
         logger.debug(f"Transcript unavailable for {video_id}: {e}")
         return None
 
-def analyze_transcript(client, video_id, video_title, transcript, cache_manager, config, logger, quota_tracker, cluster="unknown"):
-    """Sends the transcript to Gemini 1.5 Flash for theme and sentiment analysis."""
+def analyze_transcript(ollama_url, video_id, video_title, transcript, cache_manager, config, logger, quota_tracker, cluster="unknown"):
+    """Sends the transcript to Ollama for theme and sentiment analysis."""
 
     # Check cache first
     cached_analysis = cache_manager.get_analysis(video_id)
     if cached_analysis:
         return json.dumps(cached_analysis['data'])
 
-    # Enhanced JSON schema with more fields
-    response_schema = {
-        "type": "object",
-        "properties": {
-            "core_themes": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "A list of 3 to 5 core topics or themes discussed in the video"
-            },
-            "theme_categories": {
-                "type": "array",
-                "items": {
-                    "type": "string",
-                    "enum": ["Political Issues", "Social Issues", "Economic Topics", "Cultural Topics", "International Affairs", "Technology & Science", "Other"]
-                },
-                "description": "Category for each theme in the same order"
-            },
-            "overall_sentiment": {
-                "type": "string",
-                "enum": ["Positive", "Neutral", "Negative", "Mixed"],
-                "description": "The dominant emotional tone of the discussion"
-            },
-            "framing": {
-                "type": "string",
-                "enum": ["favorable", "critical", "neutral", "alarmist"],
-                "description": "How the primary topic is presented"
-            },
-            "named_entities": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "Key people, organizations, or events mentioned (up to 5)"
-            },
-            "one_sentence_summary": {
-                "type": "string",
-                "description": "A single, concise sentence summarizing the main takeaway"
-            }
-        },
-        "required": ["core_themes", "theme_categories", "overall_sentiment", "framing", "named_entities", "one_sentence_summary"]
-    }
+    # Truncate transcript if too long (some models have context limits)
+    max_chars = 8000  # Conservative limit for local models
+    if len(transcript) > max_chars:
+        transcript = transcript[:max_chars] + "..."
 
-    # Enhanced prompt with better instructions
-    prompt = f"""
-You are analyzing a YouTube video transcript to extract key themes, sentiment, and narrative framing.
+    # Enhanced prompt with JSON output instructions
+    prompt = f"""Analyze this YouTube video transcript and respond ONLY with valid JSON in this exact format:
+
+{{
+  "core_themes": ["theme1", "theme2", "theme3"],
+  "theme_categories": ["Political Issues", "Social Issues"],
+  "overall_sentiment": "Neutral",
+  "framing": "neutral",
+  "named_entities": ["entity1", "entity2"],
+  "one_sentence_summary": "Brief summary here"
+}}
 
 Video Title: "{video_title}"
 Channel Cluster: {cluster}
 
-Please analyze the transcript carefully and extract the following information:
-
-1. **Core Themes**: Identify 3-5 main topics or themes discussed (e.g., "Immigration Policy", "Economic Inequality", "Climate Change Action")
-
-2. **Theme Categories**: Categorize each theme into one of these types:
-   - Political Issues (elections, policy, governance)
-   - Social Issues (culture, identity, social movements)
-   - Economic Topics (markets, employment, inequality)
-   - Cultural Topics (media, entertainment, values)
-   - International Affairs (foreign policy, global events)
-   - Technology & Science
-   - Other
-
-3. **Overall Sentiment**: The dominant emotional tone (Positive, Neutral, Negative, or Mixed)
-
-4. **Framing**: How is the primary topic presented?
-   - favorable (supportive, promotional tone)
-   - critical (opposition, critique)
-   - neutral (balanced, informative)
-   - alarmist (crisis framing, urgent warnings)
-
-5. **Named Entities**: Key people, organizations, or events mentioned (up to 5)
-
-6. **One-Sentence Summary**: A concise summary of the main message
-
-Follow the JSON schema provided exactly.
+Instructions:
+1. **core_themes**: List 3-5 main topics discussed (e.g., "Immigration Policy", "Climate Change")
+2. **theme_categories**: Categorize each theme. Choose from: "Political Issues", "Social Issues", "Economic Topics", "Cultural Topics", "International Affairs", "Technology & Science", "Other"
+3. **overall_sentiment**: Choose ONE: "Positive", "Neutral", "Negative", or "Mixed"
+4. **framing**: Choose ONE: "favorable", "critical", "neutral", or "alarmist"
+5. **named_entities**: List up to 5 key people, organizations, or events mentioned
+6. **one_sentence_summary**: A single concise sentence summarizing the main message
 
 Transcript:
----
 {transcript}
----
-"""
+
+Respond ONLY with the JSON object, no other text:"""
 
     try:
         quota_tracker.log_gemini_api_call(f"analyze {video_title}")
-        response = client.models.generate_content(
-            model=config.analysis.model,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=response_schema
-            )
-        )
-        # The response.text is already a valid JSON string
-        result_json = response.text
 
-        # Save to cache
+        # Call Ollama API
+        response = requests.post(
+            f"{ollama_url}/api/generate",
+            json={
+                "model": config.analysis.model,
+                "prompt": prompt,
+                "stream": False,
+                "format": "json"
+            },
+            timeout=120
+        )
+
+        if response.status_code != 200:
+            logger.error(f"Ollama API error for {video_id}: {response.status_code}")
+            return None
+
+        result = response.json()
+        result_json = result.get('response', '')
+
+        # Validate JSON
         try:
             result_data = json.loads(result_json)
+
+            # Validate required fields
+            required = ["core_themes", "theme_categories", "overall_sentiment", "framing", "named_entities", "one_sentence_summary"]
+            if not all(key in result_data for key in required):
+                logger.warning(f"Incomplete analysis for {video_id}, missing fields")
+                return None
+
+            # Save to cache
             cache_manager.save_analysis(video_id, result_data)
-        except json.JSONDecodeError:
-            logger.warning(f"Could not cache analysis for {video_id}: invalid JSON")
+            return result_json
 
-        return result_json
+        except json.JSONDecodeError as e:
+            logger.warning(f"Invalid JSON from Ollama for {video_id}: {e}")
+            logger.debug(f"Response was: {result_json[:200]}")
+            return None
 
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Ollama connection error for {video_id}: {e}")
+        return None
     except Exception as e:
         logger.error(f"LLM Error for {video_id}: {e}")
         return None
 
 
-def process_video(row, client, cache_manager, config, logger, quota_tracker):
+def process_video(row, ollama_url, cache_manager, config, logger, quota_tracker):
     """Worker function to process a single video (fetch transcript + analyze)."""
     video_id = row['video_id']
     video_title = row['title']
@@ -179,8 +155,8 @@ def process_video(row, client, cache_manager, config, logger, quota_tracker):
     if not transcript or len(transcript) < 100:
         return result
 
-    # 2. Analyze with Gemini
-    analysis_json = analyze_transcript(client, video_id, video_title, transcript, cache_manager, config, logger, quota_tracker, cluster) if cache_manager else analyze_transcript_no_cache(client, video_id, video_title, transcript, config, logger, quota_tracker, cluster)
+    # 2. Analyze with Ollama
+    analysis_json = analyze_transcript(ollama_url, video_id, video_title, transcript, cache_manager, config, logger, quota_tracker, cluster) if cache_manager else analyze_transcript_no_cache(ollama_url, video_id, video_title, transcript, config, logger, quota_tracker, cluster)
 
     if analysis_json:
         try:
@@ -192,7 +168,7 @@ def process_video(row, client, cache_manager, config, logger, quota_tracker):
             result['theme_categories'] = " | ".join(data.get('theme_categories', []))
             result['named_entities'] = " | ".join(data.get('named_entities', []))
         except json.JSONDecodeError:
-            logger.warning(f"Failed to parse Gemini JSON response for {video_id}")
+            logger.warning(f"Failed to parse Ollama JSON response for {video_id}")
 
     return result
 
@@ -223,17 +199,34 @@ def run_analysis():
     metadata_mgr = MetadataManager(logger=logger)
 
     logger.info("="*60)
-    logger.info("YouTube Vibes Tracker - AI Analysis")
+    logger.info("YouTube Vibes Tracker - AI Analysis (Ollama)")
     logger.info("="*60)
 
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    # Get Ollama URL from environment or use default
+    ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
 
-    if not GEMINI_API_KEY:
-        logger.error("GEMINI_API_KEY not found in .env. Please check your file.")
+    # Test Ollama connection
+    try:
+        test_response = requests.get(f"{ollama_url}/api/tags", timeout=5)
+        if test_response.status_code == 200:
+            models = test_response.json().get('models', [])
+            model_names = [m['name'] for m in models]
+            logger.info(f"✓ Connected to Ollama at {ollama_url}")
+            logger.info(f"  Available models: {', '.join(model_names)}")
+
+            # Check if configured model is available
+            if config.analysis.model not in model_names:
+                logger.warning(f"⚠️  Model '{config.analysis.model}' not found in Ollama")
+                logger.warning(f"   Available models: {', '.join(model_names)}")
+                logger.warning(f"   Please run: ollama pull {config.analysis.model}")
+                return
+        else:
+            logger.error(f"Failed to connect to Ollama at {ollama_url}")
+            return
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Cannot connect to Ollama at {ollama_url}: {e}")
+        logger.error("Please ensure Ollama is running: ollama serve")
         return
-
-    # Initialize the Gemini Client
-    client = genai.Client(api_key=GEMINI_API_KEY)
 
     try:
         df = pd.read_csv(config.paths.cluster_data)
@@ -267,7 +260,7 @@ def run_analysis():
     with ThreadPoolExecutor(max_workers=args.workers) as executor:
         # Submit all videos for processing
         future_to_row = {
-            executor.submit(process_video, row, client, cache_manager, config, logger, quota_tracker): row
+            executor.submit(process_video, row, ollama_url, cache_manager, config, logger, quota_tracker): row
             for _, row in df.iterrows()
         }
 
@@ -343,61 +336,64 @@ def run_analysis():
 def get_transcript_no_cache(video_id, logger):
     """Fallback for when caching is disabled."""
     try:
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-        return " ".join([t['text'] for t in transcript_list])
+        api = YouTubeTranscriptApi()
+        transcript_list = api.fetch(video_id)
+        return " ".join([snippet.text for snippet in transcript_list])
     except Exception as e:
         logger.debug(f"Transcript unavailable for {video_id}: {e}")
         return None
 
 
-def analyze_transcript_no_cache(client, video_id, video_title, transcript, config, logger, quota_tracker, cluster="unknown"):
-    """Fallback for when caching is disabled."""
-    response_schema = {
-        "type": "object",
-        "properties": {
-            "core_themes": {"type": "array", "items": {"type": "string"}},
-            "theme_categories": {"type": "array", "items": {"type": "string"}},
-            "overall_sentiment": {"type": "string", "enum": ["Positive", "Neutral", "Negative", "Mixed"]},
-            "framing": {"type": "string", "enum": ["favorable", "critical", "neutral", "alarmist"]},
-            "named_entities": {"type": "array", "items": {"type": "string"}},
-            "one_sentence_summary": {"type": "string"}
-        },
-        "required": ["core_themes", "theme_categories", "overall_sentiment", "framing", "named_entities", "one_sentence_summary"]
-    }
+def analyze_transcript_no_cache(ollama_url, video_id, video_title, transcript, config, logger, quota_tracker, cluster="unknown"):
+    """Fallback for when caching is disabled - uses Ollama."""
+    # Truncate transcript if too long
+    max_chars = 8000
+    if len(transcript) > max_chars:
+        transcript = transcript[:max_chars] + "..."
 
-    prompt = f"""
-You are analyzing a YouTube video transcript to extract key themes, sentiment, and narrative framing.
+    prompt = f"""Analyze this YouTube video transcript and respond ONLY with valid JSON in this exact format:
+
+{{
+  "core_themes": ["theme1", "theme2", "theme3"],
+  "theme_categories": ["Political Issues", "Social Issues"],
+  "overall_sentiment": "Neutral",
+  "framing": "neutral",
+  "named_entities": ["entity1", "entity2"],
+  "one_sentence_summary": "Brief summary here"
+}}
 
 Video Title: "{video_title}"
 Channel Cluster: {cluster}
 
-Please analyze the transcript carefully and extract:
-1. Core Themes (3-5 main topics)
-2. Theme Categories (Political Issues, Social Issues, Economic Topics, Cultural Topics, International Affairs, Technology & Science, Other)
-3. Overall Sentiment (Positive, Neutral, Negative, Mixed)
-4. Framing (favorable, critical, neutral, alarmist)
-5. Named Entities (key people, organizations, events - up to 5)
-6. One-Sentence Summary
-
-Follow the JSON schema provided exactly.
+Instructions:
+1. **core_themes**: List 3-5 main topics discussed
+2. **theme_categories**: Choose from: "Political Issues", "Social Issues", "Economic Topics", "Cultural Topics", "International Affairs", "Technology & Science", "Other"
+3. **overall_sentiment**: Choose ONE: "Positive", "Neutral", "Negative", or "Mixed"
+4. **framing**: Choose ONE: "favorable", "critical", "neutral", or "alarmist"
+5. **named_entities**: List up to 5 key people, organizations, or events
+6. **one_sentence_summary**: A single concise sentence
 
 Transcript:
----
 {transcript}
----
-"""
+
+Respond ONLY with the JSON object, no other text:"""
 
     try:
         quota_tracker.log_gemini_api_call(f"analyze {video_title}")
-        response = client.models.generate_content(
-            model=config.analysis.model,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=response_schema
-            )
+        response = requests.post(
+            f"{ollama_url}/api/generate",
+            json={
+                "model": config.analysis.model,
+                "prompt": prompt,
+                "stream": False,
+                "format": "json"
+            },
+            timeout=120
         )
-        return response.text
+        if response.status_code == 200:
+            result = response.json()
+            return result.get('response', '')
+        return None
     except Exception as e:
         logger.error(f"LLM Error for {video_id}: {e}")
         return None

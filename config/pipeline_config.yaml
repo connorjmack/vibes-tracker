@@ -4,7 +4,7 @@ ingest:
   channel_id_cache_path: "data/channel_ids.json"
 
 analysis:
-  model: "gemini-1.5-flash"
+  model: "llama3.1:latest"  # Ollama model (alternatives: mistral, mixtral, qwen2.5, llama3.2, etc.)
   max_tokens: 64000
   enable_caching: true
   cache_dir: "data/cache"

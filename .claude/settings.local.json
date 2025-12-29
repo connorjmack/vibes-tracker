@@ -7,7 +7,19 @@
       "Bash(source .venv/bin/activate)",
       "Bash(timeout 300 python:*)",
       "Bash(python:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "WebSearch",
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(/opt/homebrew/bin/python3:*)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(.venv/bin/pip show:*)",
+      "Bash(.venv/bin/python3:*)",
+      "Bash(curl:*)",
+      "Bash(ollama:*)",
+      "Bash(chmod:*)",
+      "Bash(./scripts/setup_daily_collection.sh:*)"
     ]
   }
 }
