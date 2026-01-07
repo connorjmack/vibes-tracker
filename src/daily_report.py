@@ -249,7 +249,9 @@ def run_daily_report(target_date_str=None):
         "thats", "im", "youre", "hes", "shes", "theyre", "ive", "weve", "did", "us", "come", "need", "let", "many", "two", "day",
         "year", "years", "work", "world", "state", "country", "use", "used", "made", "point", "sure", "tell", "much", "little",
         "never", "always", "long", "still", "may", "part", "call", "start", "every", "around", "put", "end", "guy", "guys",
-        "uh", "um", "uh-huh", "mhm", "hmm", "okay", "yeah"
+        "uh", "um", "uh-huh", "mhm", "hmm", "okay", "yeah", "yep", "guess", "video", "videos", "talk", "talking", "news", "story",
+        "don't", "can't", "it's", "that's", "i'm", "you're", "he's", "she's", "we're", "they're", "i've", "we've", "didn't",
+        "won't", "wouldn't", "couldn't", "shouldn't", "isn't", "aren't", "wasn't", "weren't", "hasn't", "haven't", "hadn't"
     ]
     
     # Define Colormaps per cluster

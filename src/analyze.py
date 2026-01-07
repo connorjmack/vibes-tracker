@@ -31,17 +31,39 @@ def get_transcript(video_id, cache_manager, logger):
     # Fetch from YouTube
     try:
         api = YouTubeTranscriptApi()
-        transcript_list = api.fetch(video_id)
+        
+        # 1. List all available transcripts
+        transcript_list = api.list_transcripts(video_id)
+        
+        # 2. Try to find English (manual or auto-generated)
+        # This logic prioritizes manually created English, then auto-generated English
+        try:
+            transcript = transcript_list.find_transcript(['en'])
+        except:
+            # If explicit 'en' fails, try to find any English variant (en-US, en-GB, etc.)
+            # or generated captions
+            try: 
+                 transcript = transcript_list.find_generated_transcript(['en'])
+            except:
+                 # Last resort: just take the first one available (might be auto-generated)
+                 # iterating allows us to inspect what's there
+                 available = [t.language_code for t in transcript_list]
+                 logger.debug(f"     No 'en' transcript for {video_id}. Available: {available}")
+                 return None
+
+        # 3. Fetch the actual text
+        fetched_transcript = transcript.fetch()
+        
         # Combine transcript snippets into one big string
-        # New API returns FetchedTranscriptSnippet objects with .text attribute
-        full_text = " ".join([snippet.text for snippet in transcript_list])
+        full_text = " ".join([snippet['text'] for snippet in fetched_transcript])
 
         # Save to cache
         cache_manager.save_transcript(video_id, full_text)
         return full_text
+        
     except Exception as e:
         # Transcript might be disabled or unavailable
-        logger.debug(f"Transcript unavailable for {video_id}: {e}")
+        # logger.debug(f"Transcript unavailable for {video_id}: {e}")
         return None
 
 def analyze_transcript(ollama_url, video_id, video_title, transcript, cache_manager, config, logger, quota_tracker, cluster="unknown"):
