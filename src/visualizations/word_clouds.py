@@ -10,13 +10,16 @@ WIDTH = 1200
 HEIGHT = 800
 BACKGROUND_COLOR = 'white'
 
-def generate_word_cloud(text, filename, title):
+def generate_word_cloud(text, filename, title, extra_stopwords=None):
     """Generates a word cloud from text and saves it to the figures directory."""
     
     # 1. Customize Stopwords
     # Add common podcast filler words or irrelevant titles
     custom_stopwords = set(STOPWORDS)
     custom_stopwords.update(['video', 'youtube', 'podcast', 'show', 'clip', 'live', 'new', 'full', 'episode', 'watch', 'official', 'exclusive', 'what', 'why', 'how', 'when', 'amp', 'gets'])
+    
+    if extra_stopwords:
+        custom_stopwords.update(extra_stopwords)
 
     # 2. Generate WordCloud object
     wordcloud = WordCloud(
