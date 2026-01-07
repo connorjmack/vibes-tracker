@@ -229,10 +229,16 @@ def run_daily_report(target_date_str=None):
         
         for _, row in tqdm(cluster_videos.iterrows(), total=len(cluster_videos), leave=False):
             vid = row['video_id']
+            title = row['title']
             text = get_transcript(vid, cache_manager, logger)
+            
             if text:
                 cluster_transcripts.append(text)
                 combined_text.append(text)
+            else:
+                # Fallback to title if transcript is unavailable (e.g. IP blocked)
+                cluster_transcripts.append(title)
+                combined_text.append(title)
         
         full_text = " ".join(cluster_transcripts)
         cluster_texts[cluster] = full_text
@@ -269,12 +275,6 @@ def run_daily_report(target_date_str=None):
     if full_text.strip():
         wc_module.generate_word_cloud(
             full_text,
-            "daily_combined_transcripts.png",
-            f"Daily Content (Weighted by Views): {target_date_iso}",
-            colormap='viridis'
-        )
-        wc_module.generate_word_cloud(
-            full_text,
             "daily_combined_transcripts_sig.png",
             f"Daily Content (Key Themes): {target_date_iso}",
             extra_stopwords=SIG_STOPWORDS,
@@ -285,14 +285,8 @@ def run_daily_report(target_date_str=None):
     for cluster, text in cluster_texts.items():
         if text.strip():
             cmap = cluster_colormaps.get(cluster, 'viridis')
-            logger.info(f"  -> Generating cloud for '{cluster}' using colormap '{cmap}'")
+            logger.info(f"  -> Generating significant cloud for '{cluster}' using colormap '{cmap}'")
             
-            wc_module.generate_word_cloud(
-                text,
-                f"daily_{cluster}_transcripts.png",
-                f"Daily {cluster.title()}: {target_date_iso}",
-                colormap=cmap
-            )
             wc_module.generate_word_cloud(
                 text,
                 f"daily_{cluster}_transcripts_sig.png",
@@ -302,6 +296,10 @@ def run_daily_report(target_date_str=None):
             )
         else:
             logger.warning(f"  -> Skipping cloud for '{cluster}': No text content found.")
+
+    # 6. Statistical Word Comparison
+    logger.info("Step 5: Comparing Word Frequencies (Right vs Libs)...")
+    compare_word_frequencies(cluster_texts, SIG_STOPWORDS, report_dir, target_date_iso)
 
     logger.info("="*60)
     logger.info(f"✅ REPORT COMPLETE")

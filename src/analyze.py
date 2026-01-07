@@ -32,32 +32,13 @@ def get_transcript(video_id, cache_manager, logger):
     try:
         api = YouTubeTranscriptApi()
         
-        # 1. List all available transcripts
-        transcript_list = api.list_transcripts(video_id)
+        # Use .fetch() with multiple language codes to catch auto-generated or variant English
+        # This version of the library (1.2.3) uses .fetch() instead of .get_transcript()
+        # and returns a list of snippet objects with a .text attribute.
+        transcript_snippets = api.fetch(video_id, languages=['en', 'en-US', 'en-GB'])
         
-        # 2. Try to find English (manual or auto-generated)
-        # This logic prioritizes manually created English, then auto-generated English
-        try:
-            transcript = transcript_list.find_transcript(['en'])
-            logger.info(f"     ✓ Found manual 'en' transcript for {video_id}")
-        except:
-            # If explicit 'en' fails, try to find any English variant (en-US, en-GB, etc.)
-            # or generated captions
-            try: 
-                 transcript = transcript_list.find_generated_transcript(['en'])
-                 logger.info(f"     ✓ Found auto-generated 'en' transcript for {video_id}")
-            except:
-                 # Last resort: just take the first one available (might be auto-generated)
-                 # iterating allows us to inspect what's there
-                 available = [t.language_code for t in transcript_list]
-                 logger.warning(f"     ❌ No 'en' transcript for {video_id}. Available: {available}")
-                 return None
-
-        # 3. Fetch the actual text
-        fetched_transcript = transcript.fetch()
-        
-        # Combine transcript snippets into one big string
-        full_text = " ".join([snippet['text'] for snippet in fetched_transcript])
+        # Combine snippet text
+        full_text = " ".join([snippet.text for snippet in transcript_snippets])
 
         # Save to cache
         cache_manager.save_transcript(video_id, full_text)
@@ -65,7 +46,7 @@ def get_transcript(video_id, cache_manager, logger):
         
     except Exception as e:
         # Transcript might be disabled or unavailable
-        # logger.debug(f"Transcript unavailable for {video_id}: {e}")
+        logger.error(f"Transcript unavailable for {video_id}: {e}")
         return None
 
 def analyze_transcript(ollama_url, video_id, video_title, transcript, cache_manager, config, logger, quota_tracker, cluster="unknown"):

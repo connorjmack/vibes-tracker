@@ -12,19 +12,19 @@
     "@SecularTalk",
     "@TheBulwark"
   ],
-  "right": [
-    "@FoxNews",
-    "@TheBenShapiroShow",
-    "@DailyWire",
-    "@StevenCrowder",
-    "@Timcast",
-    "@tuckercarlson",
-    "@MegynKelly",
-    "@Newsmax",
-    "@realcharliekirk",
-    "@PragerU"
-  ],
-  "mainstream": [
+      "right": [
+        "@FoxNews",
+        "@TheBenShapiroShow",
+        "@DailyWire",
+        "@StevenCrowder",
+        "@Timcast",
+        "@tuckercarlson",
+        "@MegynKelly",
+        "@Newsmax",
+        "@realcharliekirk",
+        "@PragerU",
+        "@RealCandaceO"
+      ],  "mainstream": [
     "@CNN",
     "@NBCNews",
     "@ABCNews",

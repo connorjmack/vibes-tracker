@@ -1,0 +1,109 @@
+2026-01-06 23:32:39 - daily_report - INFO - ============================================================
+2026-01-06 23:32:39 - daily_report - INFO - 📅 DAILY VIBES REPORT: 2026-01-06
+2026-01-06 23:32:39 - daily_report - INFO - ============================================================
+2026-01-06 23:32:39 - daily_report - INFO - Step 1: Ingesting recent videos...
+2026-01-06 23:32:39 - daily_report - INFO - Starting Quota-Optimized Ingestion for 3 clusters...
+2026-01-06 23:32:39 - daily_report - INFO - Processing Cluster: libs
+2026-01-06 23:32:39 - daily_report - INFO -   -> Fetching data for: @PodSaveAmerica
+2026-01-06 23:32:40 - daily_report - INFO -   -> Fetching data for: @TheYoungTurks
+2026-01-06 23:32:40 - daily_report - INFO -   -> Fetching data for: @thedavidpakmanshow
+2026-01-06 23:32:41 - daily_report - INFO -   -> Fetching data for: @BrianTylerCohen
+2026-01-06 23:32:41 - daily_report - INFO -   -> Fetching data for: @MeidasTouch
+2026-01-06 23:32:42 - daily_report - INFO -   -> Fetching data for: @HasanAbi
+2026-01-06 23:32:42 - daily_report - INFO -   -> Fetching data for: @democracynow
+2026-01-06 23:32:43 - daily_report - INFO -   -> Fetching data for: @TheHill
+2026-01-06 23:32:43 - daily_report - INFO -   -> Fetching data for: @MajorityReportRadio
+2026-01-06 23:32:43 - daily_report - INFO -   -> Fetching data for: @SecularTalk
+2026-01-06 23:32:44 - daily_report - INFO -   -> Fetching data for: @TheBulwark
+2026-01-06 23:32:44 - daily_report - INFO - Processing Cluster: right
+2026-01-06 23:32:44 - daily_report - INFO -   -> Fetching data for: @FoxNews
+2026-01-06 23:32:44 - daily_report - INFO -   -> Fetching data for: @TheBenShapiroShow
+2026-01-06 23:32:46 - daily_report - INFO -   -> Fetching data for: @DailyWire
+2026-01-06 23:32:47 - daily_report - INFO -   -> Fetching data for: @StevenCrowder
+2026-01-06 23:32:48 - daily_report - INFO -   -> Fetching data for: @Timcast
+2026-01-06 23:32:49 - daily_report - INFO -   -> Fetching data for: @tuckercarlson
+2026-01-06 23:32:50 - daily_report - INFO -   -> Fetching data for: @MegynKelly
+2026-01-06 23:32:51 - daily_report - INFO -   -> Fetching data for: @Newsmax
+2026-01-06 23:32:55 - daily_report - INFO -   -> Fetching data for: @realcharliekirk
+2026-01-06 23:32:56 - daily_report - INFO -   -> Fetching data for: @PragerU
+2026-01-06 23:32:56 - daily_report - INFO -   -> Fetching data for: @RealCandaceO
+2026-01-06 23:32:56 - daily_report - INFO - Processing Cluster: mainstream
+2026-01-06 23:32:56 - daily_report - INFO -   -> Fetching data for: @CNN
+2026-01-06 23:32:56 - daily_report - INFO -   -> Fetching data for: @NBCNews
+2026-01-06 23:32:57 - daily_report - INFO -   -> Fetching data for: @ABCNews
+2026-01-06 23:32:57 - daily_report - INFO -   -> Fetching data for: @CBSNews
+2026-01-06 23:32:57 - daily_report - INFO -   -> Fetching data for: @MSNBC
+2026-01-06 23:32:57 - daily_report - INFO -   -> Fetching data for: @BBCNews
+2026-01-06 23:32:58 - daily_report - INFO -   -> Fetching data for: @SkyNews
+2026-01-06 23:32:58 - daily_report - INFO -   -> Fetching data for: @AlJazeeraEnglish
+2026-01-06 23:32:58 - daily_report - INFO -   -> Fetching data for: @Reuters
+2026-01-06 23:32:59 - daily_report - INFO -   -> Fetching data for: @60Minutes
+2026-01-06 23:32:59 - daily_report - INFO - Found 351 videos published on 2026-01-06
+2026-01-06 23:32:59 - daily_report - INFO - Step 2: Fetching view counts to identify top content...
+2026-01-06 23:33:00 - daily_report - INFO - 📊 View Stats: Total Views = 27,790,259
+2026-01-06 23:33:00 - daily_report - INFO -    Filtered to Top 49 videos (out of 351)
+2026-01-06 23:33:00 - daily_report - INFO - Step 3: Fetching transcripts for top videos...
+2026-01-06 23:33:00 - daily_report - INFO - Generating reports for clusters: ['right' 'libs' 'mainstream']
+2026-01-06 23:33:00 - daily_report - INFO -   Processing cluster 'right' (16 top videos)...
+  0%|          | 0/16 [00:00<?, ?it/s]2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for HYn0P-P1wUw: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for HVPuy1Ml0Vk: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for w2ie3JLKSfg: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for VqR8DY4QrUo: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for sBdU5ycJkjI: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for EsnakuL9wn8: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for m8cMMlRWeTE: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for Va7BdqXMGOY: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for xozqECIaSZE: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for TvYQbRCQm_Y: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for oNyZBbqHpbQ: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for YIXXtCRrfSU: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for 7sqf3Bjx5Tk: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for mTBfMWI4H50: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for jNizMXwh2QA: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for N3uNvkIBeYY: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+                                      2026-01-06 23:33:00 - daily_report - INFO -     -> Collected 0 characters for 'right'
+2026-01-06 23:33:00 - daily_report - INFO -   Processing cluster 'libs' (28 top videos)...
+  0%|          | 0/28 [00:00<?, ?it/s]2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for kgGhmOvBWy4: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for ARY_DRnW49I: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for qc4k6tLJefQ: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for 5NSBsua81qk: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for 7F8aLGRtXcg: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for 7dQx-l08K1Q: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:00 - daily_report - ERROR - Transcript unavailable for 26fV3ovDlF8: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for Qfm32Kh6guc: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for _nYSyZ2Ky54: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for 8WY2jJBYYhY: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for o1r9i_6ZdkA: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for X-VmWnD7oOY: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for sRGjP_KznSI: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for gamNiALKdtY: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for mUerYvkmL4s: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for f_N9C6katRQ: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for r81CCwvN5K8: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for UUrO5jWKlGU: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for sFxTVw_fJwg: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for dySZlLRa29k: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for T6rYLzfZu6U: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for u4L_LofpM_c: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for vWm8uW6OfzI: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for iwUMVsK1WUU: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for xbBAmdKmFZ0: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for xc-pfaIrzHQ: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for 8QnWatC5NH0: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for 1BU_O3mQkKI: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+                                      2026-01-06 23:33:01 - daily_report - INFO -     -> Collected 0 characters for 'libs'
+2026-01-06 23:33:01 - daily_report - INFO -   Processing cluster 'mainstream' (5 top videos)...
+  0%|          | 0/5 [00:00<?, ?it/s]2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for u-8dZ-K62Fs: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for xIygb4FbJAQ: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for 2TeyA7A4KVU: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for fYTOGhfGdJo: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+2026-01-06 23:33:01 - daily_report - ERROR - Transcript unavailable for dFUq9X859Q4: 'YouTubeTranscriptApi' object has no attribute 'list_transcripts'
+                                     2026-01-06 23:33:01 - daily_report - INFO -     -> Collected 0 characters for 'mainstream'
+2026-01-06 23:33:01 - daily_report - INFO - Step 4: Generating Daily Word Clouds...
+2026-01-06 23:33:01 - daily_report - WARNING -   -> Skipping cloud for 'right': No text content found.
+2026-01-06 23:33:01 - daily_report - WARNING -   -> Skipping cloud for 'libs': No text content found.
+2026-01-06 23:33:01 - daily_report - WARNING -   -> Skipping cloud for 'mainstream': No text content found.
+2026-01-06 23:33:01 - daily_report - INFO - ============================================================
+2026-01-06 23:33:01 - daily_report - INFO - ✅ REPORT COMPLETE
+2026-01-06 23:33:01 - daily_report - INFO - 📂 Output saved to: data/reports/2026-01-06
+2026-01-06 23:33:01 - daily_report - INFO - ============================================================
