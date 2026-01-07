@@ -39,16 +39,18 @@ def get_transcript(video_id, cache_manager, logger):
         # This logic prioritizes manually created English, then auto-generated English
         try:
             transcript = transcript_list.find_transcript(['en'])
+            logger.info(f"     ✓ Found manual 'en' transcript for {video_id}")
         except:
             # If explicit 'en' fails, try to find any English variant (en-US, en-GB, etc.)
             # or generated captions
             try: 
                  transcript = transcript_list.find_generated_transcript(['en'])
+                 logger.info(f"     ✓ Found auto-generated 'en' transcript for {video_id}")
             except:
                  # Last resort: just take the first one available (might be auto-generated)
                  # iterating allows us to inspect what's there
                  available = [t.language_code for t in transcript_list]
-                 logger.debug(f"     No 'en' transcript for {video_id}. Available: {available}")
+                 logger.warning(f"     ❌ No 'en' transcript for {video_id}. Available: {available}")
                  return None
 
         # 3. Fetch the actual text

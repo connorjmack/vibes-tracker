@@ -206,7 +206,9 @@ def run_daily_report(target_date_str=None):
     os.makedirs(report_dir, exist_ok=True)
     
     # Plot Distribution (Cluster Specific)
-    plot_views_by_cluster(filtered_df, report_dir, target_date_iso)
+    # Use full daily_df to ensure all channels are represented in the charts, 
+    # even if their views didn't make the 67% cutoff for word cloud analysis.
+    plot_views_by_cluster(daily_df, report_dir, target_date_iso)
     
     # 4. Fetch Transcripts for Filtered Videos
     logger.info("Step 3: Fetching transcripts for top videos...")
