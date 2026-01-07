@@ -47,44 +47,58 @@ def fetch_video_stats(video_ids, api_key, logger, quota_tracker):
     return stats_map
 
 def plot_views_by_cluster(df, report_dir, target_date_iso):
-    """Plots total views per channel, separated by cluster."""
+    """Plots total views per channel as a stacked bar of individual videos."""
     
-    # Define color palettes for visual distinction
     cluster_palettes = {
-        'libs': 'Blues_r',       # Blue reverse (darkest at top)
-        'right': 'Reds_r',       # Red reverse
-        'mainstream': 'Purples_r', # Purple reverse
-        'my-env': 'Greens_r'     # Green for custom
+        'libs': 'Blues_r',
+        'right': 'Reds_r',
+        'mainstream': 'Purples_r',
+        'my-env': 'Greens_r'
     }
     
-    # Iterate through each cluster present in the data
     for cluster in df['cluster'].unique():
-        cluster_df = df[df['cluster'] == cluster]
+        cluster_df = df[df['cluster'] == cluster].copy()
         
-        # Aggregate views by channel
-        channel_views = cluster_df.groupby('channel_name')['view_count'].sum().sort_values(ascending=False)
-        
-        if channel_views.empty:
+        # Sort channels by TOTAL views (Ascending for barh so largest is at top)
+        channel_totals = cluster_df.groupby('channel_name')['view_count'].sum().sort_values(ascending=True)
+        if channel_totals.empty:
             continue
+            
+        channels = channel_totals.index.tolist()
+        
+        # Dynamic height
+        plt.figure(figsize=(12, max(4, len(channels) * 0.6 + 1.5)))
+        
+        # Get base color from palette (using a mid-dark shade)
+        palette_name = cluster_palettes.get(cluster, 'viridis')
+        try:
+            # Try to get a nice color from seaborn
+            colors = sns.color_palette(palette_name, n_colors=10)
+            base_color = colors[4] # Mid-range color
+        except:
+            base_color = 'steelblue'
 
-        plt.figure(figsize=(10, len(channel_views) * 0.6 + 2)) # Dynamic height
-        
-        # Select palette (default to 'viridis' if unknown cluster)
-        palette = cluster_palettes.get(cluster, 'viridis')
-        
-        # Create bar plot
-        ax = sns.barplot(x=channel_views.values, y=channel_views.index, palette=palette)
-        
+        # Plot each channel
+        for i, channel in enumerate(channels):
+            # Get videos for this channel, sorted by size
+            videos = cluster_df[cluster_df['channel_name'] == channel].sort_values('view_count', ascending=False)
+            
+            left_offset = 0
+            for _, video in videos.iterrows():
+                views = video['view_count']
+                # Plot segment with white border to show it's a separate video
+                plt.barh(i, views, left=left_offset, color=base_color, edgecolor='white', linewidth=1.5)
+                left_offset += views
+            
+            # Label the total
+            plt.text(left_offset, i, f" {int(left_offset):,.0f}", va='center', fontweight='bold', fontsize=10)
+
         plt.title(f"Views by Channel: {cluster.title()} ({target_date_iso})", fontsize=16)
-        plt.xlabel("Total Views", fontsize=12)
-        plt.ylabel("", fontsize=12)
+        plt.xlabel("Total Views (Segments = Individual Videos)", fontsize=12)
+        plt.yticks(range(len(channels)), channels, fontsize=11)
         
-        # Add view count labels
-        for i, v in enumerate(channel_views.values):
-            ax.text(v, i, f" {v:,.0f}", va='center', fontweight='bold')
-
-        # Adjust x-axis to fit labels
-        plt.xlim(right=channel_views.max() * 1.2)
+        # Adjust x-axis limits to fit labels
+        plt.xlim(right=channel_totals.max() * 1.3)
         plt.tight_layout()
         
         save_path = os.path.join(report_dir, f"views_by_channel_{cluster}.png")
@@ -157,13 +171,32 @@ def run_daily_report(target_date_str=None):
     
     # Filter: Keep videos that contribute to the top 67% (2/3) of views
     cutoff_mask = daily_df['cumulative_percent'] <= 0.67
+    
     if not cutoff_mask.any():
-         cutoff_idx = int(len(daily_df) * 0.1) or 1
-         filtered_df = daily_df.iloc[:cutoff_idx]
+         # Fallback if just one video dominates > 67%
+         filtered_df = daily_df.iloc[:5]
     else:
         last_idx = cutoff_mask[cutoff_mask].index[-1]
         loc = daily_df.index.get_loc(last_idx)
         filtered_df = daily_df.iloc[:loc+1]
+
+    # SAFETY NET: Ensure EVERY cluster is represented
+    # If a cluster is missing from the top set (because another cluster dominated views),
+    # explicitly add its top 5 videos so we generate charts/clouds for it.
+    all_clusters = daily_df['cluster'].unique()
+    present_clusters = filtered_df['cluster'].unique()
+    missing_clusters = set(all_clusters) - set(present_clusters)
+    
+    if missing_clusters:
+        logger.info(f"⚠️  Adding top videos for missing clusters: {missing_clusters}")
+        extras = []
+        for cluster in missing_clusters:
+            # Get top 5 for this cluster
+            top_cluster_vids = daily_df[daily_df['cluster'] == cluster].head(5)
+            extras.append(top_cluster_vids)
+        
+        if extras:
+            filtered_df = pd.concat([filtered_df] + extras).drop_duplicates()
     
     logger.info(f"📊 View Stats: Total Views = {total_views:,}")
     logger.info(f"   Filtered to Top {len(filtered_df)} videos (out of {count})")
@@ -173,7 +206,7 @@ def run_daily_report(target_date_str=None):
     os.makedirs(report_dir, exist_ok=True)
     
     # Plot Distribution (Cluster Specific)
-    plot_views_by_cluster(daily_df, report_dir, target_date_iso)
+    plot_views_by_cluster(filtered_df, report_dir, target_date_iso)
     
     # 4. Fetch Transcripts for Filtered Videos
     logger.info("Step 3: Fetching transcripts for top videos...")
@@ -182,7 +215,11 @@ def run_daily_report(target_date_str=None):
     cluster_texts = {}
     combined_text = []
     
-    for cluster in filtered_df['cluster'].unique():
+    # Identify all unique clusters in the filtered set
+    target_clusters = filtered_df['cluster'].unique()
+    logger.info(f"Generating reports for clusters: {target_clusters}")
+    
+    for cluster in target_clusters:
         cluster_videos = filtered_df[filtered_df['cluster'] == cluster]
         cluster_transcripts = []
         
@@ -195,7 +232,9 @@ def run_daily_report(target_date_str=None):
                 cluster_transcripts.append(text)
                 combined_text.append(text)
         
-        cluster_texts[cluster] = " ".join(cluster_transcripts)
+        full_text = " ".join(cluster_transcripts)
+        cluster_texts[cluster] = full_text
+        logger.info(f"    -> Collected {len(full_text):,} characters for '{cluster}'")
 
     # 5. Generate Word Clouds
     logger.info("Step 4: Generating Daily Word Clouds...")
@@ -209,8 +248,17 @@ def run_daily_report(target_date_str=None):
         "good", "first", "also", "would", "could", "actually", "probably", "something", "maybe", "kind", "mean", "dont", "cant", 
         "thats", "im", "youre", "hes", "shes", "theyre", "ive", "weve", "did", "us", "come", "need", "let", "many", "two", "day",
         "year", "years", "work", "world", "state", "country", "use", "used", "made", "point", "sure", "tell", "much", "little",
-        "never", "always", "long", "still", "may", "part", "call", "start", "every", "around", "put", "end", "guy", "guys"
+        "never", "always", "long", "still", "may", "part", "call", "start", "every", "around", "put", "end", "guy", "guys",
+        "uh", "um", "uh-huh", "mhm", "hmm", "okay", "yeah"
     ]
+    
+    # Define Colormaps per cluster
+    cluster_colormaps = {
+        'libs': 'ocean',       # Blue/Green tones
+        'right': 'magma',      # Red/Purple/Black tones
+        'mainstream': 'plasma',# Purple/Orange tones
+        'my-env': 'viridis'
+    }
     
     # Combined Cloud
     full_text = " ".join(combined_text)
@@ -218,29 +266,38 @@ def run_daily_report(target_date_str=None):
         wc_module.generate_word_cloud(
             full_text,
             "daily_combined_transcripts.png",
-            f"Daily Content (Weighted by Views): {target_date_iso}"
+            f"Daily Content (Weighted by Views): {target_date_iso}",
+            colormap='viridis'
         )
         wc_module.generate_word_cloud(
             full_text,
             "daily_combined_transcripts_sig.png",
             f"Daily Content (Key Themes): {target_date_iso}",
-            extra_stopwords=SIG_STOPWORDS
+            extra_stopwords=SIG_STOPWORDS,
+            colormap='viridis'
         )
     
     # Cluster Clouds
     for cluster, text in cluster_texts.items():
         if text.strip():
+            cmap = cluster_colormaps.get(cluster, 'viridis')
+            logger.info(f"  -> Generating cloud for '{cluster}' using colormap '{cmap}'")
+            
             wc_module.generate_word_cloud(
                 text,
                 f"daily_{cluster}_transcripts.png",
-                f"Daily {cluster.title()}: {target_date_iso}"
+                f"Daily {cluster.title()}: {target_date_iso}",
+                colormap=cmap
             )
             wc_module.generate_word_cloud(
                 text,
                 f"daily_{cluster}_transcripts_sig.png",
                 f"Daily {cluster.title()} (Key Themes): {target_date_iso}",
-                extra_stopwords=SIG_STOPWORDS
+                extra_stopwords=SIG_STOPWORDS,
+                colormap=cmap
             )
+        else:
+            logger.warning(f"  -> Skipping cloud for '{cluster}': No text content found.")
 
     logger.info("="*60)
     logger.info(f"✅ REPORT COMPLETE")

@@ -10,7 +10,7 @@ WIDTH = 1200
 HEIGHT = 800
 BACKGROUND_COLOR = 'white'
 
-def generate_word_cloud(text, filename, title, extra_stopwords=None):
+def generate_word_cloud(text, filename, title, extra_stopwords=None, colormap='viridis', background_color='white'):
     """Generates a word cloud from text and saves it to the figures directory."""
     
     # 1. Customize Stopwords
@@ -23,22 +23,25 @@ def generate_word_cloud(text, filename, title, extra_stopwords=None):
 
     # 2. Generate WordCloud object
     wordcloud = WordCloud(
-        width=WIDTH,
-        height=HEIGHT,
-        background_color=BACKGROUND_COLOR,
+        width=1600, # Higher res
+        height=900,
+        background_color=background_color,
         stopwords=custom_stopwords,
         collocations=False, # Avoids counting bigrams like 'new york' as one word
-        max_words=100
+        max_words=150,
+        colormap=colormap,
+        contour_width=0,
+        contour_color='steelblue'
     ).generate(text.lower())
     
     # 3. Plot and Save
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(16, 9))
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')
-    plt.title(title, fontsize=20, pad=20)
+    plt.title(title, fontsize=24, pad=20, color='#333333' if background_color == 'white' else 'white')
     
     save_path = os.path.join(FIGURES_DIR, filename)
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(save_path, bbox_inches='tight', facecolor=background_color)
     plt.close()
     print(f"   -> Saved: {save_path}")
 
