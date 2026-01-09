@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import argparse
 import logging
 import pandas as pd
@@ -16,34 +17,47 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.utils.config_loader import load_config
 from src.utils.logger import setup_logger, QuotaTracker
 from src.utils.cache_manager import CacheManager
+from src.utils.rate_limiter import YouTubeAPIRateLimiter
 from src.analyze import get_transcript
 from src.ingest import ingest_clusters
 from src.visualizations.word_clouds import generate_word_cloud
 
-def fetch_video_stats(video_ids, api_key, logger, quota_tracker):
+def fetch_video_stats(video_ids, api_key, logger, quota_tracker, config):
     """Fetches view counts for a list of video IDs in batches of 50."""
     youtube = build('youtube', 'v3', developerKey=api_key)
+    rate_limiter = YouTubeAPIRateLimiter(config, quota_tracker, logger)
     stats_map = {}
-    
+
     # Process in chunks of 50
     chunk_size = 50
     for i in range(0, len(video_ids), chunk_size):
         chunk = video_ids[i:i+chunk_size]
         try:
-            quota_tracker.log_youtube_api_call(1, f"get stats for {len(chunk)} videos")
-            response = youtube.videos().list(
-                part="statistics",
-                id=",".join(chunk)
-            ).execute()
-            
+            @rate_limiter.rate_limit_youtube_api
+            def _fetch_batch():
+                quota_tracker.log_youtube_api_call(1, f"get stats for {len(chunk)} videos")
+                response = youtube.videos().list(
+                    part="statistics",
+                    id=",".join(chunk)
+                ).execute()
+                return response
+
+            response = _fetch_batch()
+
             for item in response.get('items', []):
                 vid = item['id']
                 views = int(item['statistics'].get('viewCount', 0))
                 stats_map[vid] = views
-                
+
         except Exception as e:
             logger.error(f"Error fetching stats for chunk: {e}")
-            
+
+        # Add delay between batches to prevent rate limiting
+        if i + chunk_size < len(video_ids):
+            delay = config.rate_limiting.batch_operations.delay_between_batches
+            logger.debug(f"Batch delay: {delay}s before next batch")
+            time.sleep(delay)
+
     return stats_map
 
 def plot_views_by_cluster(df, report_dir, target_date_iso):
@@ -156,7 +170,7 @@ def run_daily_report(target_date_str=None):
     # 3. Fetch View Counts & Filter
     logger.info("Step 2: Fetching view counts to identify top content...")
     video_ids = daily_df['video_id'].unique().tolist()
-    stats = fetch_video_stats(video_ids, API_KEY, logger, quota_tracker)
+    stats = fetch_video_stats(video_ids, API_KEY, logger, quota_tracker, config)
     
     # Map views to dataframe
     daily_df['view_count'] = daily_df['video_id'].map(stats).fillna(0).astype(int)
@@ -213,7 +227,8 @@ def run_daily_report(target_date_str=None):
     # 4. Fetch Transcripts for Filtered Videos
     logger.info("Step 3: Fetching transcripts for top videos...")
     cache_manager = CacheManager(config.analysis.cache_dir, logger)
-    
+    transcript_rate_limiter = TranscriptRateLimiter(config, logger)
+
     cluster_texts = {}
     combined_text = []
     
@@ -230,7 +245,7 @@ def run_daily_report(target_date_str=None):
         for _, row in tqdm(cluster_videos.iterrows(), total=len(cluster_videos), leave=False):
             vid = row['video_id']
             title = row['title']
-            text = get_transcript(vid, cache_manager, logger)
+            text = get_transcript(vid, cache_manager, logger, transcript_rate_limiter)
             
             if text:
                 cluster_transcripts.append(text)

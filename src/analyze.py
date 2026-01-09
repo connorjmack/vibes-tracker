@@ -17,11 +17,12 @@ from src.utils.config_loader import load_config
 from src.utils.logger import setup_logger, QuotaTracker
 from src.utils.cache_manager import CacheManager
 from src.utils.metadata_manager import MetadataManager
+from src.utils.rate_limiter import TranscriptRateLimiter
 from src.temporal_analysis import save_historical_snapshot
 
 # --- Core Functions ---
 
-def get_transcript(video_id, cache_manager, logger):
+def get_transcript(video_id, cache_manager, logger, rate_limiter=None):
     """Fetches the full transcript text for a given video ID."""
     # Check cache first
     cached_transcript = cache_manager.get_transcript(video_id)
@@ -30,20 +31,24 @@ def get_transcript(video_id, cache_manager, logger):
 
     # Fetch from YouTube
     try:
-        api = YouTubeTranscriptApi()
-        
-        # Use .fetch() with multiple language codes to catch auto-generated or variant English
-        # This version of the library (1.2.3) uses .fetch() instead of .get_transcript()
-        # and returns a list of snippet objects with a .text attribute.
-        transcript_snippets = api.fetch(video_id, languages=['en', 'en-US', 'en-GB'])
-        
-        # Combine snippet text
-        full_text = " ".join([snippet.text for snippet in transcript_snippets])
+        @(rate_limiter.rate_limit_transcript_fetch if rate_limiter else lambda f: f)
+        def _fetch_transcript():
+            api = YouTubeTranscriptApi()
+
+            # Use .fetch() with multiple language codes to catch auto-generated or variant English
+            # This version of the library (1.2.3) uses .fetch() instead of .get_transcript()
+            # and returns a list of snippet objects with a .text attribute.
+            transcript_snippets = api.fetch(video_id, languages=['en', 'en-US', 'en-GB'])
+
+            # Combine snippet text
+            return " ".join([snippet.text for snippet in transcript_snippets])
+
+        full_text = _fetch_transcript()
 
         # Save to cache
         cache_manager.save_transcript(video_id, full_text)
         return full_text
-        
+
     except Exception as e:
         # Transcript might be disabled or unavailable
         logger.error(f"Transcript unavailable for {video_id}: {e}")
@@ -139,7 +144,7 @@ Respond ONLY with the JSON object, no other text:"""
         return None
 
 
-def process_video(row, ollama_url, cache_manager, config, logger, quota_tracker):
+def process_video(row, ollama_url, cache_manager, config, logger, quota_tracker, transcript_rate_limiter=None):
     """Worker function to process a single video (fetch transcript + analyze)."""
     video_id = row['video_id']
     video_title = row['title']
@@ -156,7 +161,7 @@ def process_video(row, ollama_url, cache_manager, config, logger, quota_tracker)
     }
 
     # 1. Get Transcript
-    transcript = get_transcript(video_id, cache_manager, logger) if cache_manager else get_transcript_no_cache(video_id, logger)
+    transcript = get_transcript(video_id, cache_manager, logger, transcript_rate_limiter) if cache_manager else get_transcript_no_cache(video_id, logger)
     if not transcript or len(transcript) < 100:
         return result
 
@@ -182,20 +187,21 @@ def run_analysis():
     """Main function to orchestrate the transcript fetching and AI analysis."""
     import argparse
 
-    # Parse CLI arguments
-    parser = argparse.ArgumentParser(description='Run AI analysis on video transcripts')
-    parser.add_argument('--incremental', action='store_true', help='Only analyze new videos since last run')
-    parser.add_argument('--full-refresh', action='store_true', help='Analyze all videos (disable incremental mode)')
-    parser.add_argument('--workers', type=int, default=10, help='Number of parallel workers (default: 10)')
-    args = parser.parse_args()
-
     # Change to project root if running from src/
     if os.path.basename(os.getcwd()) == 'src':
         os.chdir('..')
 
-    # Load environment and configuration
+    # Load environment and configuration first to get defaults
     load_dotenv()
     config = load_config()
+
+    # Parse CLI arguments
+    parser = argparse.ArgumentParser(description='Run AI analysis on video transcripts')
+    parser.add_argument('--incremental', action='store_true', help='Only analyze new videos since last run')
+    parser.add_argument('--full-refresh', action='store_true', help='Analyze all videos (disable incremental mode)')
+    default_workers = config.rate_limiting.batch_operations.max_parallel_workers
+    parser.add_argument('--workers', type=int, default=default_workers, help=f'Number of parallel workers (default: {default_workers})')
+    args = parser.parse_args()
 
     # Setup logger, metadata manager, and tools
     logger = setup_logger("analyze", level=logging.INFO)
@@ -260,12 +266,15 @@ def run_analysis():
     if cache_manager:
         logger.info(f"Caching enabled at {config.analysis.cache_dir}")
 
+    # Initialize transcript rate limiter
+    transcript_rate_limiter = TranscriptRateLimiter(config, logger)
+
     # Process videos in parallel
     results = {}
     with ThreadPoolExecutor(max_workers=args.workers) as executor:
         # Submit all videos for processing
         future_to_row = {
-            executor.submit(process_video, row, ollama_url, cache_manager, config, logger, quota_tracker): row
+            executor.submit(process_video, row, ollama_url, cache_manager, config, logger, quota_tracker, transcript_rate_limiter): row
             for _, row in df.iterrows()
         }
 

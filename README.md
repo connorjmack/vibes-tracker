@@ -15,6 +15,31 @@ Useful for research on media ecosystems, narrative analysis, or just understandi
 
 ![Topics across all clusters](figures/combined_titles_wordcloud.png)
 
+## Recent Daily Runs
+
+The tracker is continuously monitoring YouTube channels. Here's what's in the database:
+
+**Current Database Status** (as of Dec 29, 2025):
+- **2,703 total videos** across all clusters
+  - **Libs:** 872 videos (from channels like Pod Save America, The Young Turks, David Pakman Show)
+  - **Right:** 908 videos (from channels like Fox News, Ben Shapiro Show, Daily Wire)
+  - **Mainstream:** 923 videos (from channels like CNN, Reuters, MSNBC, ABC News)
+
+**Latest Daily Analysis:**
+
+Combined topics across all clusters:
+![Recent combined topics](figures/recent_combined_wordcloud.png)
+
+Breakdown by cluster perspective:
+| Libs | Right | Mainstream |
+|------|-------|------------|
+| ![Libs topics](figures/recent_libs_wordcloud.png) | ![Right topics](figures/recent_right_wordcloud.png) | ![Mainstream topics](figures/recent_mainstream_wordcloud.png) |
+
+View distribution across Liberal channels:
+![Views by channel](figures/recent_views_libs.png)
+
+More daily reports available in `data/reports/` directory with word clouds and view statistics updated regularly.
+
 ## Features
 
 - **Automated data collection** from YouTube channels (quota-optimized)

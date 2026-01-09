@@ -91,12 +91,17 @@ def get_logger(name: str = "vibes-tracker") -> logging.Logger:
 
 
 class QuotaTracker:
-    """Helper class to track API quota usage."""
+    """Helper class to track API quota usage and rate limiting metrics."""
 
     def __init__(self, logger: logging.Logger):
         self.logger = logger
         self.youtube_units = 0
         self.gemini_calls = 0
+
+        # Rate limiting metrics
+        self.api_calls_throttled = 0
+        self.retry_attempts = 0
+        self.rate_limit_errors = 0
 
     def log_youtube_api_call(self, units: int, operation: str):
         """Log a YouTube API call and track quota."""
@@ -108,13 +113,47 @@ class QuotaTracker:
         self.gemini_calls += 1
         self.logger.debug(f"Gemini API: {operation} (total calls: {self.gemini_calls})")
 
+    def log_throttle(self, delay_seconds: float):
+        """Log when rate limiter delays a request."""
+        self.api_calls_throttled += 1
+        self.logger.debug(f"Rate limiter throttled request: {delay_seconds:.2f}s delay")
+
+    def log_retry(self, attempt: int, error_type: str):
+        """Log retry attempts."""
+        self.retry_attempts += 1
+        self.logger.warning(f"Retry attempt {attempt} due to {error_type}")
+
+    def log_rate_limit_error(self):
+        """Log rate limit errors."""
+        self.rate_limit_errors += 1
+        self.logger.error("Rate limit error encountered")
+
     def log_summary(self):
-        """Log a summary of API usage."""
-        self.logger.info(f"API Usage Summary - YouTube: {self.youtube_units} units, Gemini: {self.gemini_calls} calls")
+        """Log a summary of API usage and rate limiting metrics."""
+        self.logger.info("="*60)
+        self.logger.info("API Usage Summary:")
+        self.logger.info(f"  YouTube: {self.youtube_units} units")
+        self.logger.info(f"  Gemini: {self.gemini_calls} calls")
+
+        # Rate limiting metrics
+        if self.api_calls_throttled > 0 or self.retry_attempts > 0 or self.rate_limit_errors > 0:
+            self.logger.info("Rate Limiting Stats:")
+            if self.api_calls_throttled > 0:
+                self.logger.info(f"  Requests throttled: {self.api_calls_throttled}")
+            if self.retry_attempts > 0:
+                self.logger.info(f"  Retry attempts: {self.retry_attempts}")
+            if self.rate_limit_errors > 0:
+                self.logger.warning(f"  Rate limit errors: {self.rate_limit_errors}")
+
         if self.youtube_units > 8000:
             self.logger.warning(f"YouTube API quota usage is high: {self.youtube_units}/10000 daily limit")
+
+        self.logger.info("="*60)
 
     def reset(self):
         """Reset counters."""
         self.youtube_units = 0
         self.gemini_calls = 0
+        self.api_calls_throttled = 0
+        self.retry_attempts = 0
+        self.rate_limit_errors = 0

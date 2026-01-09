@@ -30,6 +30,39 @@ class VisualizationConfig(BaseModel):
     custom_stopwords: List[str] = Field(default_factory=list, description="Custom stopwords for word clouds")
 
 
+class YouTubeAPIRateLimitConfig(BaseModel):
+    """Configuration for YouTube Data API rate limiting."""
+    enabled: bool = Field(default=True, description="Enable rate limiting for YouTube API")
+    min_delay_seconds: float = Field(default=1.0, description="Minimum delay between requests (seconds)")
+    max_delay_seconds: float = Field(default=60.0, description="Maximum backoff delay (seconds)")
+    max_retries: int = Field(default=5, description="Maximum retry attempts")
+    backoff_multiplier: float = Field(default=2.0, description="Exponential backoff multiplier")
+    requests_per_second: float = Field(default=0.5, description="Token bucket rate (requests per second)")
+    burst_size: int = Field(default=3, description="Token bucket burst size")
+
+
+class TranscriptAPIRateLimitConfig(BaseModel):
+    """Configuration for transcript API rate limiting."""
+    enabled: bool = Field(default=True, description="Enable rate limiting for transcript fetching")
+    min_delay_seconds: float = Field(default=0.5, description="Minimum delay between requests (seconds)")
+    max_delay_seconds: float = Field(default=5.0, description="Maximum delay (seconds)")
+    delay_jitter: float = Field(default=0.3, description="Random jitter (0-1 fraction of base delay)")
+    max_retries: int = Field(default=3, description="Maximum retry attempts")
+
+
+class BatchOperationsConfig(BaseModel):
+    """Configuration for batch operations."""
+    delay_between_batches: float = Field(default=2.0, description="Delay between batch operations (seconds)")
+    max_parallel_workers: int = Field(default=5, description="Maximum parallel workers")
+
+
+class RateLimitingConfig(BaseModel):
+    """Configuration for rate limiting across all APIs."""
+    youtube_api: YouTubeAPIRateLimitConfig = Field(default_factory=YouTubeAPIRateLimitConfig)
+    transcript_api: TranscriptAPIRateLimitConfig = Field(default_factory=TranscriptAPIRateLimitConfig)
+    batch_operations: BatchOperationsConfig = Field(default_factory=BatchOperationsConfig)
+
+
 class PathsConfig(BaseModel):
     """Configuration for file paths."""
     data_dir: str = Field(default="data", description="Main data directory")
@@ -45,6 +78,7 @@ class PipelineConfig(BaseModel):
     ingest: IngestConfig = Field(default_factory=IngestConfig)
     analysis: AnalysisConfig = Field(default_factory=AnalysisConfig)
     visualization: VisualizationConfig = Field(default_factory=VisualizationConfig)
+    rate_limiting: RateLimitingConfig = Field(default_factory=RateLimitingConfig)
     paths: PathsConfig = Field(default_factory=PathsConfig)
 
 
