@@ -20,3 +20,7 @@ logs/*.log
 # IDE/OS files
 .DS_Store
 *.pyc
+
+# Figures
+figures/temporal/
+figures/5year_analysis/
