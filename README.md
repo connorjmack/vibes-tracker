@@ -13,13 +13,13 @@ This tool helps you monitor what different groups of YouTube channels are talkin
 
 Useful for research on media ecosystems, narrative analysis, or just understanding what your favorite YouTube niches are up to.
 
-![Topics across all clusters](figures/combined_titles_wordcloud.png)
+![Topics across all clusters](figures/recent_combined_wordcloud.png)
 
 ## Recent Daily Runs
 
 The tracker is continuously monitoring YouTube channels. Here's what's in the database:
 
-**Current Database Status** (as of Dec 29, 2025):
+**Current Database Status** (as of Jan 9, 2026):
 - **2,703 total videos** across all clusters
   - **Libs:** 872 videos (from channels like Pod Save America, The Young Turks, David Pakman Show)
   - **Right:** 908 videos (from channels like Fox News, Ben Shapiro Show, Daily Wire)

@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.utils.config_loader import load_config
 from src.utils.logger import setup_logger, QuotaTracker
 from src.utils.cache_manager import CacheManager
-from src.utils.rate_limiter import YouTubeAPIRateLimiter
+from src.utils.rate_limiter import YouTubeAPIRateLimiter, TranscriptRateLimiter
 from src.analyze import get_transcript
 from src.ingest import ingest_clusters
 from src.visualizations.word_clouds import generate_word_cloud
@@ -314,7 +314,7 @@ def run_daily_report(target_date_str=None):
 
     # 6. Statistical Word Comparison
     logger.info("Step 5: Comparing Word Frequencies (Right vs Libs)...")
-    compare_word_frequencies(cluster_texts, SIG_STOPWORDS, report_dir, target_date_iso)
+    # compare_word_frequencies(cluster_texts, SIG_STOPWORDS, report_dir, target_date_iso)
 
     logger.info("="*60)
     logger.info(f"✅ REPORT COMPLETE")

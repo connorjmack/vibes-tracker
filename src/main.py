@@ -287,7 +287,7 @@ def run_visualize(args):
     config = load_config()
     logger = setup_logger("visualize")
 
-    generate_all_visualizations(config, logger, output_dir=args.output_dir)
+    generate_all_visualizations()
     print(f"✅ Visualizations saved to {args.output_dir}/")
 
 

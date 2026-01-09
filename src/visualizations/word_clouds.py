@@ -4,8 +4,18 @@ from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 
 # --- Configuration ---
-DATA_PATH = "../data/cluster_data.csv"
-FIGURES_DIR = "../figures"
+# Determine paths based on execution context
+if os.path.exists("data/cluster_data.csv"):
+    DATA_PATH = "data/cluster_data.csv"
+    FIGURES_DIR = "figures"
+elif os.path.exists("../data/cluster_data.csv"):
+    DATA_PATH = "../data/cluster_data.csv"
+    FIGURES_DIR = "../figures"
+else:
+    # Fallback/Default
+    DATA_PATH = "../data/cluster_data.csv"
+    FIGURES_DIR = "../figures"
+
 WIDTH = 1200
 HEIGHT = 800
 BACKGROUND_COLOR = 'white'
@@ -45,16 +55,17 @@ def generate_word_cloud(text, filename, title, extra_stopwords=None, colormap='v
     plt.close()
     print(f"   -> Saved: {save_path}")
 
-def make_word_clouds():
+def generate_word_clouds(df=None):
     """Main function to generate word clouds for all combined and cluster titles."""
     print("🚀 Starting Word Cloud Generation...")
     
-    # 1. Check for data and figures directory
-    try:
-        df = pd.read_csv(DATA_PATH)
-    except FileNotFoundError:
-        print(f"Error: Data file not found at {DATA_PATH}. Run ingest.py first.")
-        return
+    # 1. Check for data
+    if df is None:
+        try:
+            df = pd.read_csv(DATA_PATH)
+        except FileNotFoundError:
+            print(f"Error: Data file not found at {DATA_PATH}. Run ingest.py first.")
+            return
 
     os.makedirs(FIGURES_DIR, exist_ok=True)
     
@@ -93,4 +104,12 @@ if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir) # Change current working directory to src/ temporarily
     
-    make_word_clouds()
+    # Re-evaluate paths since we changed dir
+    if os.path.exists("data/cluster_data.csv"):
+        DATA_PATH = "data/cluster_data.csv"
+        FIGURES_DIR = "figures"
+    elif os.path.exists("../data/cluster_data.csv"):
+        DATA_PATH = "../data/cluster_data.csv"
+        FIGURES_DIR = "../figures"
+
+    generate_word_clouds()
