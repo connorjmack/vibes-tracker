@@ -22,7 +22,10 @@
       "Bash(./scripts/setup_daily_collection.sh:*)",
       "Bash(du:*)",
       "Bash(python3:*)",
-      "Bash(pip3 install:*)"
+      "Bash(pip3 install:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(test:*)"
     ]
   }
 }

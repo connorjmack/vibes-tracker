@@ -1,46 +1,54 @@
-# Implementation Plan - API Safety & Quota Optimization
+# Implementation Plan - Repository Restructuring & Professionalization
 
 ## Context & Reasoning
-The user wants to ensure the project does not get blocked by YouTube due to API usage.
-Currently, the codebase has a disconnect between documented optimizations (Playlist ID caching) and the actual implementation in `src/ingest.py`.
-Additionally, there is no hard stop mechanism if the daily quota is accidentally exceeded, which poses a risk of a 403 block.
-We need to sync the code with the documentation to reduce API calls by ~50% and implement a safety fuse for the daily quota.
+The user has requested a reorganization of the repository to address the issue of "too many moving parts." The current structure uses flat directories (`src/`, `scripts/`, `gui/`) with fragile `sys.path.insert` hacks for imports.
+A professional Python project typically follows a `src`-layout package structure. This centralizes code, eliminates import hacks, and separates library logic from scripts and configuration.
+
+**Proposed Architecture:**
+1.  **Package Migration**: Move all source code into a proper Python package: `src/vibes_tracker/`.
+2.  **Core Separation**: Organize `vibes_tracker` into submodules (`core`, `utils`, `analysis`, `gui`).
+3.  **CLI Unification**: Replace standalone scripts in `src/` (like `ingest.py`) with entry points in `vibes_tracker/cli.py` or `vibes_tracker/commands/`.
+4.  **Import Standardization**: Remove `sys.path.insert` and use absolute imports (e.g., `from vibes_tracker.utils import ...`).
+5.  **Artifact Consolidation**: Move documentation-like files from `results/` to `docs/` and organize outputs.
 
 ## Objectives
 
-1.  **[DONE] Implement Playlist ID Caching (`src/ingest.py`)**:
-    *   Avoid fetching the "Uploads" playlist ID for every channel on every run.
-    *   Persist this mapping in `data/playlist_ids.json`.
-    *   **Impact**: Saves 1 API unit per channel per run. For 100 channels, this saves 100 units/run.
+1.  **Create Package Structure**:
+    *   Create `src/vibes_tracker/`.
+    *   Create `src/vibes_tracker/__init__.py`.
+    *   Create subdirectories: `core`, `utils`, `analysis`, `gui`, `commands`.
 
-2.  **[DONE] Implement Hard Quota Safety Stop (`src/utils/logger.py` & `src/utils/rate_limiter.py`)**:
-    *   Add a configurable `daily_quota_limit` (default: 9500, below the 10k free tier).
-    *   Update `QuotaTracker` to raise a `QuotaExceededException` if this limit is hit.
-    *   Catch this in the main loop to exit gracefully.
+2.  **Relocate Modules**:
+    *   Move `src/utils` -> `src/vibes_tracker/utils`.
+    *   Move `src/visualizations` -> `src/vibes_tracker/visualizations`.
+    *   Move core scripts (`ingest.py`, `analyze.py`, `visualize.py`) -> `src/vibes_tracker/core/`.
+    *   Move analysis scripts (`temporal_analysis.py`, etc.) -> `src/vibes_tracker/analysis/`.
+    *   Move `gui/app.py` -> `src/vibes_tracker/gui/app.py`.
 
-3.  **[DONE] Enhance Configuration (`config/pipeline_config.yaml` & `src/utils/config_loader.py`)**:
-    *   Add `rate_limiting.daily_quota_limit` setting.
-    *   Updated Pydantic models to support new fields.
+3.  **Refactor Imports**:
+    *   Scan all files and replace `from src.utils` with `from vibes_tracker.utils`.
+    *   Remove `sys.path.insert` blocks.
+
+4.  **Create Unified CLI**:
+    *   Refactor `src/main.py` into `src/vibes_tracker/cli.py` using `argparse` or `click`.
+    *   Create a root-level `run_pipeline.py` or entry point wrapper that calls the package CLI.
+
+5.  **Clean Up Root**:
+    *   Move `results/` content to `docs/reports/`.
+    *   Move `figures/` to `output/figures/` (optional, but good for separation).
 
 ## Affected Files
-
-*   `config/pipeline_config.yaml`: Add `daily_quota_limit`.
-*   `src/utils/logger.py`: Add exception class and check in `QuotaTracker`.
-*   `src/utils/rate_limiter.py`: Ensure `YouTubeAPIRateLimiter` respects the tracker's state.
-*   `src/ingest.py`: Implement Playlist ID caching logic.
+*   All `.py` files in `src/`, `scripts/`, `gui/`.
+*   `config/pipeline_config.yaml` (Paths might need updates, though usually relative to execution dir).
 
 ## Pre-Flight Checks
-*   `pip install -r requirements.txt` (Ensure dependencies are present)
-*   `python src/main.py --help` (Verify CLI is working)
+*   `git status` (Ensure clean state).
+*   `pip freeze` (Check dependencies).
 
 ## Testing & Verification
-*   **Test Command**: `python -m pytest tests/test_rate_limiter.py` (Need to create this if missing) or run a dry-run ingestion.
-*   **Verification**:
-    1.  Run `python src/ingest.py`.
-    2.  Check `data/playlist_ids.json` is created.
-    3.  Run `python src/ingest.py` again.
-    4.  Logs should show "[CACHE HIT]" for playlist IDs and quota usage should be lower.
+*   **Test Command**: `python -m pytest tests/` (after updating tests to new imports).
+*   **Verification**: Run `python -m vibes_tracker.cli --help` and verify all commands appear.
 
 ## Risk & Rollback
-*   **Risk**: Caching stale playlist IDs (unlikely, as uploads playlist ID rarely changes).
-*   **Rollback**: `git checkout src/ingest.py` and delete `data/playlist_ids.json`.
+*   **Risk**: Import errors are the biggest risk. `sys.path` hacks might be hiding circular dependencies.
+*   **Rollback**: `git reset --hard HEAD` (since we are doing file moves, git handles this well).
