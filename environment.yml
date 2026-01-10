@@ -1,0 +1,29 @@
+name: vibes-tracker
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    # Core packages for data handling and API interaction
+    - google-api-python-client
+    - youtube-transcript-api
+    - pandas
+    - python-dotenv
+    - matplotlib
+    - wordcloud
+    # Configuration and validation
+    - pyyaml
+    - pydantic
+    # Data analysis and visualization
+    - scikit-learn
+    - seaborn
+    # AI/RAG Packages
+    - langchain-google-genai
+    - chromadb
+    - google-genai
+    # Rate limiting and retry logic
+    - tenacity>=8.2.0
+    # Progress bars
+    - tqdm
