@@ -205,7 +205,7 @@ def run_analysis():
 
     # Setup logger, metadata manager, and tools
     logger = setup_logger("analyze", level=logging.INFO)
-    quota_tracker = QuotaTracker(logger)
+    quota_tracker = QuotaTracker(logger, daily_limit=config.rate_limiting.youtube_api.daily_quota_limit)
     cache_manager = CacheManager(config.analysis.cache_dir, logger) if config.analysis.enable_caching else None
     metadata_mgr = MetadataManager(logger=logger)
 

@@ -7,6 +7,7 @@ import threading
 from functools import wraps
 from typing import Optional, Callable, Any
 from googleapiclient.errors import HttpError
+from src.utils.logger import QuotaExceededException
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -201,6 +202,9 @@ class YouTubeAPIRateLimiter:
         def wrapper(*args, **kwargs) -> Any:
             if not self.enabled:
                 return func(*args, **kwargs)
+
+            # Check if quota is already exceeded before even trying
+            self.quota_tracker.check_quota()
 
             # Apply tenacity retry decorator dynamically
             retry_decorator = retry(

@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.utils.config_loader import load_config, get_project_root
-from src.utils.logger import setup_logger, QuotaTracker
+from src.utils.logger import setup_logger, QuotaTracker, QuotaExceededException
 from src.utils.metadata_manager import MetadataManager
 from src.utils.rate_limiter import YouTubeAPIRateLimiter
 from src.temporal_analysis import save_historical_snapshot
@@ -27,6 +27,19 @@ def load_channel_id_cache(cache_path):
 
 def save_channel_id_cache(cache, cache_path):
     """Saves the updated Channel ID cache to the data directory."""
+    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+    with open(cache_path, 'w') as f:
+        json.dump(cache, f, indent=4)
+
+def load_playlist_id_cache(cache_path):
+    """Loads the stored Playlist ID cache."""
+    if os.path.exists(cache_path):
+        with open(cache_path, 'r') as f:
+            return json.load(f)
+    return {}
+
+def save_playlist_id_cache(cache, cache_path):
+    """Saves the updated Playlist ID cache."""
     os.makedirs(os.path.dirname(cache_path), exist_ok=True)
     with open(cache_path, 'w') as f:
         json.dump(cache, f, indent=4)
@@ -60,20 +73,29 @@ def resolve_channel_id(youtube, handle, cache, logger, quota_tracker, rate_limit
         logger.error(f"Error resolving handle {handle}: {e}")
         return None
 
-def get_recent_videos(youtube, channel_id, channel_name, limit, logger, quota_tracker, rate_limiter):
+def get_recent_videos(youtube, channel_id, channel_name, limit, logger, quota_tracker, rate_limiter, playlist_cache=None):
     """Fetches the most recent X videos from a specific channel ID."""
     videos = []
 
     try:
         # 1. Get the 'Uploads' Playlist ID (1 unit)
-        @rate_limiter.rate_limit_youtube_api
-        def _get_uploads_playlist():
-            res = youtube.channels().list(id=channel_id, part='contentDetails').execute()
-            quota_tracker.log_youtube_api_call(1, f"get uploads playlist for {channel_name}")
-            return res
+        playlist_id = playlist_cache.get(channel_id) if playlist_cache is not None else None
+        
+        if not playlist_id:
+            logger.info(f"     [CACHE MISS] Fetching uploads playlist for {channel_name} (1 unit)...")
+            @rate_limiter.rate_limit_youtube_api
+            def _get_uploads_playlist():
+                res = youtube.channels().list(id=channel_id, part='contentDetails').execute()
+                quota_tracker.log_youtube_api_call(1, f"get uploads playlist for {channel_name}")
+                return res
 
-        res = _get_uploads_playlist()
-        playlist_id = res['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+            res = _get_uploads_playlist()
+            playlist_id = res['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+            
+            if playlist_cache is not None:
+                playlist_cache[channel_id] = playlist_id
+        else:
+            logger.debug(f"     [CACHE HIT] Using cached uploads playlist for {channel_name}")
 
         # 2. Get videos from that playlist (1 unit, up to 50 results)
         @rate_limiter.rate_limit_youtube_api
@@ -120,6 +142,9 @@ def ingest_clusters(clusters_config, api_key, config, logger, quota_tracker, inc
     # Load cache using config path
     cache_path = config.ingest.channel_id_cache_path
     channel_id_cache = load_channel_id_cache(cache_path)
+    
+    playlist_cache_path = config.ingest.playlist_id_cache_path
+    playlist_cache = load_playlist_id_cache(playlist_cache_path)
 
     # Check for incremental mode
     last_run = None
@@ -146,7 +171,7 @@ def ingest_clusters(clusters_config, api_key, config, logger, quota_tracker, inc
                     continue
 
                 # 2. Fetch Videos (Cheap calls: 2 units per channel)
-                videos = get_recent_videos(youtube, cid, handle, config.ingest.videos_per_channel, logger, quota_tracker, rate_limiter)
+                videos = get_recent_videos(youtube, cid, handle, config.ingest.videos_per_channel, logger, quota_tracker, rate_limiter, playlist_cache=playlist_cache)
 
                 # 3. Filter to new videos only if incremental
                 if incremental and last_run:
@@ -159,10 +184,13 @@ def ingest_clusters(clusters_config, api_key, config, logger, quota_tracker, inc
                 for v in videos:
                     v['cluster'] = cluster_name
                     all_videos.append(v)
+    except QuotaExceededException:
+        logger.warning("Quota exceeded! Returning partial results.")
     finally:
         # Always save the cache even if an error occurs mid-run
         if config.ingest.cache_channel_ids:
             save_channel_id_cache(channel_id_cache, cache_path)
+            save_playlist_id_cache(playlist_cache, playlist_cache_path)
 
     df = pd.DataFrame(all_videos)
     return df
@@ -188,7 +216,7 @@ if __name__ == "__main__":
 
     # Setup logger and metadata manager
     logger = setup_logger("ingest", level=logging.INFO)
-    quota_tracker = QuotaTracker(logger)
+    quota_tracker = QuotaTracker(logger, daily_limit=config.rate_limiting.youtube_api.daily_quota_limit)
     metadata_mgr = MetadataManager(logger=logger)
 
     logger.info("="*60)

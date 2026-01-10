@@ -12,6 +12,7 @@ class IngestConfig(BaseModel):
     videos_per_channel: int = Field(default=30, description="Number of recent videos to fetch per channel")
     cache_channel_ids: bool = Field(default=True, description="Whether to cache channel ID lookups")
     channel_id_cache_path: str = Field(default="data/channel_ids.json", description="Path to channel ID cache")
+    playlist_id_cache_path: str = Field(default="data/playlist_ids.json", description="Path to playlist ID cache")
 
 
 class AnalysisConfig(BaseModel):
@@ -33,6 +34,7 @@ class VisualizationConfig(BaseModel):
 class YouTubeAPIRateLimitConfig(BaseModel):
     """Configuration for YouTube Data API rate limiting."""
     enabled: bool = Field(default=True, description="Enable rate limiting for YouTube API")
+    daily_quota_limit: int = Field(default=10000, description="Daily quota limit for YouTube API")
     min_delay_seconds: float = Field(default=1.0, description="Minimum delay between requests (seconds)")
     max_delay_seconds: float = Field(default=60.0, description="Maximum backoff delay (seconds)")
     max_retries: int = Field(default=5, description="Maximum retry attempts")

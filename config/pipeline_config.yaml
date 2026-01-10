@@ -2,6 +2,7 @@ ingest:
   videos_per_channel: 30
   cache_channel_ids: true
   channel_id_cache_path: "data/channel_ids.json"
+  playlist_id_cache_path: "data/playlist_ids.json"
 
 analysis:
   model: "llama3.1:latest"  # Ollama model (alternatives: mistral, mixtral, qwen2.5, llama3.2, etc.)
@@ -27,6 +28,7 @@ rate_limiting:
   # YouTube Data API settings
   youtube_api:
     enabled: true
+    daily_quota_limit: 9500         # Hard stop if this many units are consumed
     min_delay_seconds: 1.0          # Minimum delay between requests (prevents IP blocking)
     max_delay_seconds: 60.0         # Maximum backoff delay
     max_retries: 5                  # Maximum retry attempts

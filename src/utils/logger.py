@@ -90,11 +90,17 @@ def get_logger(name: str = "vibes-tracker") -> logging.Logger:
     return logger
 
 
+class QuotaExceededException(Exception):
+    """Exception raised when API quota is exceeded."""
+    pass
+
+
 class QuotaTracker:
     """Helper class to track API quota usage and rate limiting metrics."""
 
-    def __init__(self, logger: logging.Logger):
+    def __init__(self, logger: logging.Logger, daily_limit: int = 10000):
         self.logger = logger
+        self.daily_limit = daily_limit
         self.youtube_units = 0
         self.gemini_calls = 0
 
@@ -107,6 +113,14 @@ class QuotaTracker:
         """Log a YouTube API call and track quota."""
         self.youtube_units += units
         self.logger.debug(f"YouTube API: {operation} ({units} units, total: {self.youtube_units})")
+
+        self.check_quota()
+
+    def check_quota(self):
+        """Check if quota has been exceeded and raise exception if so."""
+        if self.youtube_units >= self.daily_limit:
+            self.logger.error(f"CRITICAL: YouTube API quota exceeded ({self.youtube_units} >= {self.daily_limit})")
+            raise QuotaExceededException(f"YouTube API quota limit reached: {self.youtube_units}")
 
     def log_gemini_api_call(self, operation: str):
         """Log a Gemini API call."""
