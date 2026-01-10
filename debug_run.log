@@ -1,63 +1,0 @@
-2026-01-06 23:16:08 - daily_report - INFO - ============================================================
-2026-01-06 23:16:08 - daily_report - INFO - 📅 DAILY VIBES REPORT: 2026-01-06
-2026-01-06 23:16:08 - daily_report - INFO - ============================================================
-2026-01-06 23:16:08 - daily_report - INFO - Step 1: Ingesting recent videos...
-2026-01-06 23:16:08 - daily_report - INFO - Starting Quota-Optimized Ingestion for 3 clusters...
-2026-01-06 23:16:08 - daily_report - INFO - Processing Cluster: libs
-2026-01-06 23:16:08 - daily_report - INFO -   -> Fetching data for: @PodSaveAmerica
-2026-01-06 23:16:09 - daily_report - INFO -   -> Fetching data for: @TheYoungTurks
-2026-01-06 23:16:13 - daily_report - INFO -   -> Fetching data for: @thedavidpakmanshow
-2026-01-06 23:16:13 - daily_report - INFO -   -> Fetching data for: @BrianTylerCohen
-2026-01-06 23:16:13 - daily_report - INFO -   -> Fetching data for: @MeidasTouch
-2026-01-06 23:16:17 - daily_report - INFO -   -> Fetching data for: @HasanAbi
-2026-01-06 23:16:18 - daily_report - INFO -   -> Fetching data for: @democracynow
-2026-01-06 23:16:18 - daily_report - INFO -   -> Fetching data for: @TheHill
-2026-01-06 23:16:18 - daily_report - INFO -   -> Fetching data for: @MajorityReportRadio
-2026-01-06 23:16:18 - daily_report - INFO -   -> Fetching data for: @SecularTalk
-2026-01-06 23:16:21 - daily_report - INFO -   -> Fetching data for: @TheBulwark
-2026-01-06 23:16:22 - daily_report - INFO - Processing Cluster: right
-2026-01-06 23:16:22 - daily_report - INFO -   -> Fetching data for: @FoxNews
-2026-01-06 23:16:22 - daily_report - INFO -   -> Fetching data for: @TheBenShapiroShow
-2026-01-06 23:16:23 - daily_report - INFO -   -> Fetching data for: @DailyWire
-2026-01-06 23:16:24 - daily_report - INFO -   -> Fetching data for: @StevenCrowder
-2026-01-06 23:16:24 - daily_report - INFO -   -> Fetching data for: @Timcast
-2026-01-06 23:16:24 - daily_report - INFO -   -> Fetching data for: @tuckercarlson
-2026-01-06 23:16:25 - daily_report - INFO -   -> Fetching data for: @MegynKelly
-2026-01-06 23:16:26 - daily_report - INFO -   -> Fetching data for: @Newsmax
-2026-01-06 23:16:28 - daily_report - INFO -   -> Fetching data for: @realcharliekirk
-2026-01-06 23:16:28 - daily_report - INFO -   -> Fetching data for: @PragerU
-2026-01-06 23:16:28 - daily_report - INFO - Processing Cluster: mainstream
-2026-01-06 23:16:28 - daily_report - INFO -   -> Fetching data for: @CNN
-2026-01-06 23:16:29 - daily_report - INFO -   -> Fetching data for: @NBCNews
-2026-01-06 23:16:30 - daily_report - INFO -   -> Fetching data for: @ABCNews
-2026-01-06 23:16:32 - daily_report - INFO -   -> Fetching data for: @CBSNews
-2026-01-06 23:16:32 - daily_report - INFO -   -> Fetching data for: @MSNBC
-2026-01-06 23:16:32 - daily_report - INFO -   -> Fetching data for: @BBCNews
-2026-01-06 23:16:32 - daily_report - INFO -   -> Fetching data for: @SkyNews
-2026-01-06 23:16:33 - daily_report - INFO -   -> Fetching data for: @AlJazeeraEnglish
-2026-01-06 23:16:33 - daily_report - INFO -   -> Fetching data for: @Reuters
-2026-01-06 23:16:33 - daily_report - INFO -   -> Fetching data for: @60Minutes
-2026-01-06 23:16:34 - daily_report - INFO - Found 351 videos published on 2026-01-06
-2026-01-06 23:16:34 - daily_report - INFO - Step 2: Fetching view counts to identify top content...
-2026-01-06 23:16:35 - daily_report - INFO - 📊 View Stats: Total Views = 25,937,232
-2026-01-06 23:16:35 - daily_report - INFO -    Filtered to Top 50 videos (out of 351)
-2026-01-06 23:16:35 - daily_report - INFO - Step 3: Fetching transcripts for top videos...
-2026-01-06 23:16:35 - daily_report - INFO - Generating reports for clusters: ['right' 'libs' 'mainstream']
-2026-01-06 23:16:35 - daily_report - INFO -   Processing cluster 'right' (14 top videos)...
-  0%|          | 0/14 [00:00<?, ?it/s]  7%|▋         | 1/14 [00:01<00:16,  1.27s/it] 14%|█▍        | 2/14 [00:02<00:18,  1.51s/it] 21%|██▏       | 3/14 [00:04<00:15,  1.43s/it] 29%|██▊       | 4/14 [00:05<00:13,  1.39s/it] 36%|███▌      | 5/14 [00:06<00:12,  1.36s/it] 43%|████▎     | 6/14 [00:08<00:11,  1.45s/it] 50%|█████     | 7/14 [00:11<00:12,  1.80s/it] 57%|█████▋    | 8/14 [00:12<00:10,  1.72s/it] 64%|██████▍   | 9/14 [00:14<00:08,  1.62s/it] 71%|███████▏  | 10/14 [00:15<00:06,  1.52s/it] 79%|███████▊  | 11/14 [00:16<00:04,  1.54s/it] 86%|████████▌ | 12/14 [00:18<00:03,  1.56s/it] 93%|█████████▎| 13/14 [00:19<00:01,  1.51s/it]100%|██████████| 14/14 [00:21<00:00,  1.52s/it]                                               2026-01-06 23:16:57 - daily_report - INFO -     -> Collected 0 characters for 'right'
-2026-01-06 23:16:57 - daily_report - INFO -   Processing cluster 'libs' (30 top videos)...
-  0%|          | 0/30 [00:00<?, ?it/s]  3%|▎         | 1/30 [00:01<00:53,  1.83s/it]  7%|▋         | 2/30 [00:03<00:55,  1.99s/it] 10%|█         | 3/30 [00:05<00:51,  1.91s/it] 13%|█▎        | 4/30 [00:07<00:45,  1.75s/it] 17%|█▋        | 5/30 [00:08<00:41,  1.67s/it] 20%|██        | 6/30 [00:10<00:37,  1.57s/it] 23%|██▎       | 7/30 [00:11<00:35,  1.55s/it] 30%|███       | 9/30 [00:12<00:23,  1.10s/it] 33%|███▎      | 10/30 [00:14<00:23,  1.16s/it] 37%|███▋      | 11/30 [00:15<00:22,  1.21s/it] 40%|████      | 12/30 [00:17<00:25,  1.40s/it] 43%|████▎     | 13/30 [00:19<00:28,  1.69s/it] 47%|████▋     | 14/30 [00:21<00:26,  1.63s/it] 50%|█████     | 15/30 [00:22<00:24,  1.61s/it] 53%|█████▎    | 16/30 [00:24<00:22,  1.61s/it] 57%|█████▋    | 17/30 [00:26<00:20,  1.60s/it] 67%|██████▋   | 20/30 [00:27<00:09,  1.02it/s] 70%|███████   | 21/30 [00:29<00:10,  1.13s/it] 73%|███████▎  | 22/30 [00:31<00:10,  1.29s/it] 77%|███████▋  | 23/30 [00:33<00:11,  1.65s/it] 83%|████████▎ | 25/30 [00:35<00:06,  1.34s/it] 87%|████████▋ | 26/30 [00:37<00:05,  1.40s/it] 90%|█████████ | 27/30 [00:38<00:04,  1.39s/it] 93%|█████████▎| 28/30 [00:39<00:02,  1.37s/it] 97%|█████████▋| 29/30 [00:41<00:01,  1.33s/it]100%|██████████| 30/30 [00:42<00:00,  1.34s/it]                                               2026-01-06 23:17:39 - daily_report - INFO -     -> Collected 144,801 characters for 'libs'
-2026-01-06 23:17:39 - daily_report - INFO -   Processing cluster 'mainstream' (6 top videos)...
-  0%|          | 0/6 [00:00<?, ?it/s] 17%|█▋        | 1/6 [00:01<00:07,  1.51s/it] 33%|███▎      | 2/6 [00:02<00:04,  1.13s/it] 50%|█████     | 3/6 [00:03<00:03,  1.30s/it] 67%|██████▋   | 4/6 [00:05<00:02,  1.25s/it] 83%|████████▎ | 5/6 [00:06<00:01,  1.37s/it]100%|██████████| 6/6 [00:08<00:00,  1.50s/it]                                             2026-01-06 23:17:48 - daily_report - INFO -     -> Collected 0 characters for 'mainstream'
-2026-01-06 23:17:48 - daily_report - INFO - Step 4: Generating Daily Word Clouds...
-   -> Saved: data/reports/2026-01-06/daily_combined_transcripts.png
-   -> Saved: data/reports/2026-01-06/daily_combined_transcripts_sig.png
-2026-01-06 23:17:50 - daily_report - WARNING -   -> Skipping cloud for 'right': No text content found.
-2026-01-06 23:17:50 - daily_report - INFO -   -> Generating cloud for 'libs' using colormap 'ocean'
-   -> Saved: data/reports/2026-01-06/daily_libs_transcripts.png
-   -> Saved: data/reports/2026-01-06/daily_libs_transcripts_sig.png
-2026-01-06 23:17:51 - daily_report - WARNING -   -> Skipping cloud for 'mainstream': No text content found.
-2026-01-06 23:17:51 - daily_report - INFO - ============================================================
-2026-01-06 23:17:51 - daily_report - INFO - ✅ REPORT COMPLETE
-2026-01-06 23:17:51 - daily_report - INFO - 📂 Output saved to: data/reports/2026-01-06
-2026-01-06 23:17:51 - daily_report - INFO - ============================================================
