@@ -360,30 +360,45 @@ def collect_channel_history(channel_handle, start_date, end_date, output_dir="da
             return
 
     # 2. Fetch Video List
-    published_after = f"{start_date}T00:00:00Z"
-    published_before = f"{end_date}T00:00:00Z"
-    
-    logger.info(f"Fetching video list for {channel_handle} ({start_date} to {end_date})...")
-    
-    # We use a large max_results because we want EVERYTHING in the period
-    videos = fetch_videos_by_date_range(
-        youtube, channel_id, channel_handle,
-        published_after, published_before,
-        logger, quota_tracker,
-        max_results=5000 # Upper limit for safety, likely covers years
-    )
+    # 3. Prepare Output Directory
+    channel_dir = Path(output_dir) / channel_handle
+    channel_dir.mkdir(parents=True, exist_ok=True)
+
+    # 4. Fetch or Load Video List
+    video_list_path = channel_dir / "video_list.json"
+    videos = []
+
+    if video_list_path.exists():
+        logger.info(f"Loading video list from cache: {video_list_path}")
+        with open(video_list_path, 'r') as f:
+            videos = json.load(f)
+        logger.info(f"Loaded {len(videos)} videos from cache.")
+    else:
+        published_after = f"{start_date}T00:00:00Z"
+        published_before = f"{end_date}T00:00:00Z"
+        
+        logger.info(f"Fetching video list for {channel_handle} ({start_date} to {end_date})...")
+        
+        # We use a large max_results because we want EVERYTHING in the period
+        videos = fetch_videos_by_date_range(
+            youtube, channel_id, channel_handle,
+            published_after, published_before,
+            logger, quota_tracker,
+            max_results=5000 # Upper limit for safety, likely covers years
+        )
+        
+        if videos:
+            logger.info(f"Saving {len(videos)} videos to cache: {video_list_path}")
+            with open(video_list_path, 'w') as f:
+                json.dump(videos, f, indent=2)
     
     if not videos:
         logger.warning("No videos found in this date range.")
         return
         
-    logger.info(f"Found {len(videos)} videos. Beginning transcript download...")
+    logger.info(f"Processing {len(videos)} videos. Beginning transcript download...")
     
-    # 3. Prepare Output Directory
-    channel_dir = Path(output_dir) / channel_handle
-    channel_dir.mkdir(parents=True, exist_ok=True)
-    
-    # 4. Fetch Transcripts
+    # 5. Fetch Transcripts
     cache_manager = CacheManager(config.analysis.cache_dir, logger)
     transcript_rate_limiter = TranscriptRateLimiter(config, logger)
     
