@@ -58,6 +58,79 @@ def fetch_transcripts_for_period(df, config, logger):
     
     return df
 
+def fetch_videos_by_date_range(youtube, channel_id, channel_name,
+                                published_after, published_before,
+                                logger, quota_tracker, max_results=50):
+    """
+    Fetch videos from a channel within a specific date range.
+
+    Args:
+        youtube: YouTube API client
+        channel_id: Channel ID
+        channel_name: Channel name/handle
+        published_after: ISO 8601 date string (e.g., "2024-01-01T00:00:00Z")
+        published_before: ISO 8601 date string
+        logger: Logger instance
+        quota_tracker: QuotaTracker instance
+        max_results: Maximum videos to fetch per channel
+
+    Returns:
+        List of video dictionaries
+    """
+    videos = []
+
+    try:
+        # Get the uploads playlist
+        res = youtube.channels().list(id=channel_id, part='contentDetails').execute()
+        quota_tracker.log_youtube_api_call(1, f"get uploads playlist for {channel_name}")
+        playlist_id = res['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+
+        # Fetch videos with pagination
+        page_token = None
+        videos_fetched = 0
+
+        while videos_fetched < max_results:
+            request = youtube.playlistItems().list(
+                playlistId=playlist_id,
+                part='snippet',
+                maxResults=min(50, max_results - videos_fetched),
+                pageToken=page_token
+            )
+            res = request.execute()
+            quota_tracker.log_youtube_api_call(1, f"get videos from {channel_name}")
+
+            for item in res['items']:
+                if item['snippet']['title'] in ["Private video", "Deleted video"]:
+                    continue
+
+                publish_date = item['snippet']['publishedAt']
+
+                # Filter by date range
+                if published_after and publish_date < published_after:
+                    continue
+                if published_before and publish_date >= published_before:
+                    continue
+
+                videos.append({
+                    "video_id": item['snippet']['resourceId']['videoId'],
+                    "title": item['snippet']['title'],
+                    "publish_date": publish_date,
+                    "channel_name": channel_name,
+                    "url": f"https://www.youtube.com/watch?v={item['snippet']['resourceId']['videoId']}"
+                })
+                videos_fetched += 1
+
+            # Check for more pages
+            page_token = res.get('nextPageToken')
+            if not page_token:
+                break
+
+        return videos
+
+    except Exception as e:
+        logger.error(f"Error fetching videos for {channel_name}: {e}")
+        return []
+
 def collect_historical_period(start_date, end_date, output_dir="data/historical", transcripts_only=False):
     """
     Collect data for a specific time period.
@@ -334,8 +407,8 @@ def collect_channel_history(channel_handle, start_date, end_date, output_dir="da
         filename = f"{date_str}_{vid}.txt"
         file_path = channel_dir / filename
         
-        # Skip if already exists
-        if file_path.exists() and vid in existing_ids:
+        # Skip if already exists on disk
+        if file_path.exists():
             results.append({
                 'video_id': vid,
                 'publish_date': video['publish_date'],

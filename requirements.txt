@@ -21,3 +21,6 @@ google-genai
 
 # Rate limiting and retry logic
 tenacity>=8.2.0
+
+# GUI
+streamlit
