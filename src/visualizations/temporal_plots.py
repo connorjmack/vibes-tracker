@@ -255,5 +255,5 @@ if __name__ == "__main__":
     # Generate all plots
     generate_all_temporal_plots(
         days_back=30,
-        clusters=['libs', 'right', 'my-env', 'mainstream', 'manosphere']
+        clusters=['Left', 'right', 'my-env', 'mainstream', 'manosphere']
     )

@@ -1,5 +1,5 @@
 {
-  "libs": [
+  "Left": [
     "@PodSaveAmerica",
     "@TheYoungTurks",
     "@thedavidpakmanshow",
@@ -35,5 +35,17 @@
     "@AlJazeeraEnglish",
     "@Reuters",
     "@60Minutes"
+  ],
+  "manosphere": [
+    "@joerogan",
+    "@lexfridman",
+    "@hubermanlab",
+    "@TheoVon",
+    "@flagrant",
+    "@JordanBPeterson",
+    "@ChrisWillx",
+    "@PBDPodcast",
+    "@DiaryOfACEO",
+    "@Koncrete"
   ]
 }

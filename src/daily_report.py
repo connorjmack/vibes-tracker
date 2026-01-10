@@ -64,9 +64,10 @@ def plot_views_by_cluster(df, report_dir, target_date_iso):
     """Plots total views per channel as a stacked bar of individual videos."""
     
     cluster_palettes = {
-        'libs': 'Blues_r',
+        'Left': 'Blues_r',
         'right': 'Reds_r',
         'mainstream': 'Purples_r',
+        'manosphere': 'Oranges_r',
         'my-env': 'Greens_r'
     }
     
@@ -279,9 +280,10 @@ def run_daily_report(target_date_str=None):
     
     # Define Colormaps per cluster
     cluster_colormaps = {
-        'libs': 'ocean',       # Blue/Green tones
+        'Left': 'ocean',       # Blue/Green tones
         'right': 'magma',      # Red/Purple/Black tones
         'mainstream': 'plasma',# Purple/Orange tones
+        'manosphere': 'inferno', # Black/Red/Yellow
         'my-env': 'viridis'
     }
     

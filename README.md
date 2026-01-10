@@ -11,7 +11,7 @@ This tool helps you monitor what different groups of YouTube channels are talkin
 3. Tracks how these narratives evolve over time
 4. Compares what different clusters are focusing on
 
-Useful for research on media ecosystems, narrative analysis, or just understanding what your favorite YouTube niches are up to.
+
 
 ![Topics across all clusters](figures/recent_combined_wordcloud.png)
 

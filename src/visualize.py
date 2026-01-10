@@ -73,7 +73,7 @@ def generate_all_visualizations():
         from src.visualizations.temporal_plots import generate_all_temporal_plots
         generate_all_temporal_plots(
             days_back=30,
-            clusters=['libs', 'right', 'my-env', 'mainstream', 'manosphere']
+            clusters=['Left', 'right', 'my-env', 'mainstream', 'manosphere']
         )
     except Exception as e:
         logger.warning(f"Temporal plots skipped (need historical data): {e}")

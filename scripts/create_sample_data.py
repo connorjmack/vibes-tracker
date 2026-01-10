@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 # Sample themes by cluster
 THEMES_BY_CLUSTER = {
-    'libs': [
+    'Left': [
         ['Healthcare Reform', 'Climate Action', 'Education Funding'],
         ['Voting Rights', 'Income Inequality', 'Social Justice'],
         ['Immigration Reform', 'Gun Control', 'LGBTQ Rights'],
@@ -44,7 +44,7 @@ THEMES_BY_CLUSTER = {
 }
 
 CATEGORIES = {
-    'libs': ['Political Issues', 'Social Issues', 'Political Issues'],
+    'Left': ['Political Issues', 'Social Issues', 'Political Issues'],
     'right': ['Political Issues', 'Political Issues', 'Political Issues'],
     'mainstream': ['Political Issues', 'International Affairs', 'Economic Topics'],
     'manosphere': ['Social Issues', 'Cultural Topics', 'Social Issues'],
@@ -52,7 +52,7 @@ CATEGORIES = {
 }
 
 SENTIMENT_DIST = {
-    'libs': {'Positive': 0.3, 'Neutral': 0.3, 'Negative': 0.3, 'Mixed': 0.1},
+    'Left': {'Positive': 0.3, 'Neutral': 0.3, 'Negative': 0.3, 'Mixed': 0.1},
     'right': {'Positive': 0.25, 'Neutral': 0.25, 'Negative': 0.35, 'Mixed': 0.15},
     'mainstream': {'Positive': 0.2, 'Neutral': 0.5, 'Negative': 0.2, 'Mixed': 0.1},
     'manosphere': {'Positive': 0.15, 'Neutral': 0.3, 'Negative': 0.4, 'Mixed': 0.15},
@@ -60,7 +60,7 @@ SENTIMENT_DIST = {
 }
 
 FRAMING_DIST = {
-    'libs': {'favorable': 0.35, 'critical': 0.4, 'neutral': 0.2, 'alarmist': 0.05},
+    'Left': {'favorable': 0.35, 'critical': 0.4, 'neutral': 0.2, 'alarmist': 0.05},
     'right': {'favorable': 0.3, 'critical': 0.45, 'neutral': 0.15, 'alarmist': 0.1},
     'mainstream': {'favorable': 0.15, 'critical': 0.2, 'neutral': 0.6, 'alarmist': 0.05},
     'manosphere': {'favorable': 0.2, 'critical': 0.5, 'neutral': 0.25, 'alarmist': 0.05},
