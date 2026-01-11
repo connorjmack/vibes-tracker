@@ -11,16 +11,13 @@ from tqdm import tqdm
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.utils.config_loader import load_config
-from src.utils.logger import setup_logger, QuotaTracker
-from src.utils.cache_manager import CacheManager
-from src.utils.rate_limiter import YouTubeAPIRateLimiter, TranscriptRateLimiter
-from src.analyze import get_transcript
-from src.ingest import ingest_clusters
-from src.visualizations.word_clouds import generate_word_cloud
+from vibes_tracker.utils.config_loader import load_config
+from vibes_tracker.utils.logger import setup_logger, QuotaTracker
+from vibes_tracker.utils.cache_manager import CacheManager
+from vibes_tracker.utils.rate_limiter import YouTubeAPIRateLimiter, TranscriptRateLimiter
+from vibes_tracker.core.analyze import get_transcript
+from vibes_tracker.core.ingest import ingest_clusters
+from vibes_tracker.visualizations.word_clouds import generate_word_cloud
 
 def fetch_video_stats(video_ids, api_key, logger, quota_tracker, config):
     """Fetches view counts for a list of video IDs in batches of 50."""

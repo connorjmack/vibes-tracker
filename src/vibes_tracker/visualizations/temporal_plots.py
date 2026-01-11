@@ -10,10 +10,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, List
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from src.temporal_analysis import load_historical_runs, compare_theme_trends, calculate_sentiment_trends
+from vibes_tracker.analysis.temporal import load_historical_runs, compare_theme_trends, calculate_sentiment_trends
 
 
 def plot_theme_trends(df_trends: pd.DataFrame,
@@ -249,7 +247,7 @@ if __name__ == "__main__":
         os.chdir('../..')
 
     # Setup logger
-    from src.utils.logger import setup_logger
+    from vibes_tracker.utils.logger import setup_logger
     logger = setup_logger("temporal-plots", level=logging.INFO)
 
     # Generate all plots

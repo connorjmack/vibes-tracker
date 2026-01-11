@@ -8,8 +8,6 @@ import logging
 from pathlib import Path
 from collections import Counter
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 
 def plot_sentiment_distribution_by_cluster(df: pd.DataFrame,
@@ -211,8 +209,8 @@ if __name__ == "__main__":
         os.chdir('../..')
 
     # Setup logger
-    from src.utils.logger import setup_logger
-    from src.utils.config_loader import load_config
+    from vibes_tracker.utils.logger import setup_logger
+    from vibes_tracker.utils.config_loader import load_config
 
     logger = setup_logger("sentiment-plots", level=logging.INFO)
     config = load_config()

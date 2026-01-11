@@ -10,9 +10,6 @@ import sys
 import argparse
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 
 def main():
     """Main CLI entry point with subcommands."""
@@ -22,24 +19,22 @@ def main():
         epilog="""
 Examples:
   # Full pipeline run
-  python src/main.py ingest
-  python src/main.py analyze --workers 10
-  python src/main.py visualize
+  vibes-tracker ingest
+  vibes-tracker analyze --workers 10
+  vibes-tracker visualize
 
   # Incremental updates
-  python src/main.py ingest --incremental
-  python src/main.py analyze --incremental
+  vibes-tracker ingest --incremental
+  vibes-tracker analyze --incremental
 
   # Temporal analysis
-  python src/main.py temporal --days-back 30
+  vibes-tracker temporal --days-back 30
 
   # Cross-cluster comparison
-  python src/main.py compare
+  vibes-tracker compare
 
   # Combined workflow
-  python src/main.py ingest --incremental && \\
-  python src/main.py analyze --incremental && \\
-  python src/main.py visualize
+  vibes-tracker pipeline --incremental
         """
     )
 
@@ -186,8 +181,8 @@ Examples:
         parser.print_help()
         return
 
-    # Change to project root
-    project_root = Path(__file__).parent.parent
+    # Change to project root (cli.py is at src/vibes_tracker/cli.py)
+    project_root = Path(__file__).parent.parent.parent
     os.chdir(project_root)
 
     # Execute command
@@ -210,10 +205,10 @@ Examples:
 def run_ingest(args):
     """Run data ingestion."""
     print("🔄 Running data ingestion...")
-    from src.ingest import ingest_clusters
-    from src.utils.config_loader import load_config
-    from src.utils.logger import setup_logger, QuotaTracker
-    from src.utils.metadata_manager import MetadataManager
+    from vibes_tracker.core.ingest import ingest_clusters
+    from vibes_tracker.utils.config_loader import load_config
+    from vibes_tracker.utils.logger import setup_logger, QuotaTracker
+    from vibes_tracker.utils.metadata_manager import MetadataManager
     from dotenv import load_dotenv
     import json
     import pandas as pd
@@ -254,7 +249,7 @@ def run_ingest(args):
 
         metadata_mgr.update_ingest(len(df))
 
-        from src.temporal_analysis import save_historical_snapshot
+        from vibes_tracker.analysis.temporal import save_historical_snapshot
         save_historical_snapshot(config, logger)
 
         print(f"✅ Ingestion complete! Saved {len(df)} videos to {output_path}")
@@ -272,7 +267,7 @@ def run_analyze(args):
         sys.argv.append('--full-refresh')
     sys.argv.extend(['--workers', str(args.workers)])
 
-    from src.analyze import run_analysis
+    from vibes_tracker.core.analyze import run_analysis
     run_analysis()
     print("✅ Analysis complete!")
 
@@ -280,9 +275,9 @@ def run_analyze(args):
 def run_visualize(args):
     """Generate visualizations."""
     print("📊 Generating visualizations...")
-    from src.visualize import generate_all_visualizations
-    from src.utils.config_loader import load_config
-    from src.utils.logger import setup_logger
+    from vibes_tracker.core.visualize import generate_all_visualizations
+    from vibes_tracker.utils.config_loader import load_config
+    from vibes_tracker.utils.logger import setup_logger
 
     config = load_config()
     logger = setup_logger("visualize")
@@ -294,9 +289,9 @@ def run_visualize(args):
 def run_temporal(args):
     """Run temporal analysis."""
     print("📈 Running temporal trend analysis...")
-    from src.temporal_analysis import run_temporal_analysis
-    from src.utils.config_loader import load_config
-    from src.utils.logger import setup_logger
+    from vibes_tracker.analysis.temporal import run_temporal_analysis
+    from vibes_tracker.utils.config_loader import load_config
+    from vibes_tracker.utils.logger import setup_logger
 
     config = load_config()
     logger = setup_logger("temporal")
@@ -314,9 +309,9 @@ def run_temporal(args):
 def run_compare(args):
     """Run cross-cluster comparison."""
     print("🔍 Running cross-cluster comparison...")
-    from src.cross_cluster_analysis import run_comparison_analysis
-    from src.utils.config_loader import load_config
-    from src.utils.logger import setup_logger
+    from vibes_tracker.analysis.cross_cluster import run_comparison_analysis
+    from vibes_tracker.utils.config_loader import load_config
+    from vibes_tracker.utils.logger import setup_logger
 
     config = load_config()
     logger = setup_logger("compare")

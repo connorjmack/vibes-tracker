@@ -10,11 +10,8 @@ from pathlib import Path
 from collections import defaultdict, Counter
 from typing import Dict, List, Set, Tuple
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.utils.config_loader import load_config
-from src.utils.logger import setup_logger
+from vibes_tracker.utils.config_loader import load_config
+from vibes_tracker.utils.logger import setup_logger
 
 
 def load_analyzed_data(config) -> pd.DataFrame:

@@ -6,11 +6,8 @@ import logging
 import pandas as pd
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.utils.config_loader import load_config
-from src.utils.logger import setup_logger
+from vibes_tracker.utils.config_loader import load_config
+from vibes_tracker.utils.logger import setup_logger
 
 
 def generate_all_visualizations():
@@ -45,7 +42,7 @@ def generate_all_visualizations():
     # 1. Word Clouds
     logger.info("\n📊 Generating word clouds...")
     try:
-        from src.visualizations.word_clouds import generate_word_clouds
+        from vibes_tracker.visualizations.word_clouds import generate_word_clouds
         df_cluster = pd.read_csv(config.paths.cluster_data)
         generate_word_clouds(df_cluster)
     except Exception as e:
@@ -54,7 +51,7 @@ def generate_all_visualizations():
     # 2. Sentiment Plots
     logger.info("\n📈 Generating sentiment and framing plots...")
     try:
-        from src.visualizations.sentiment_plots import generate_all_sentiment_plots
+        from vibes_tracker.visualizations.sentiment_plots import generate_all_sentiment_plots
         generate_all_sentiment_plots(df)
     except Exception as e:
         logger.error(f"Error generating sentiment plots: {e}")
@@ -62,7 +59,7 @@ def generate_all_visualizations():
     # 3. Cross-Cluster Comparison
     logger.info("\n🌍 Generating cross-cluster comparison plots...")
     try:
-        from src.visualizations.cluster_comparison import generate_all_comparison_plots
+        from vibes_tracker.visualizations.cluster_comparison import generate_all_comparison_plots
         generate_all_comparison_plots(df)
     except Exception as e:
         logger.error(f"Error generating comparison plots: {e}")
@@ -70,7 +67,7 @@ def generate_all_visualizations():
     # 4. Temporal Trends (if historical data exists)
     logger.info("\n📅 Generating temporal trend plots...")
     try:
-        from src.visualizations.temporal_plots import generate_all_temporal_plots
+        from vibes_tracker.visualizations.temporal_plots import generate_all_temporal_plots
         generate_all_temporal_plots(
             days_back=30,
             clusters=['Left', 'right', 'my-env', 'mainstream', 'manosphere']

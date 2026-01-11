@@ -9,10 +9,8 @@ import seaborn as sns
 from pathlib import Path
 from typing import Dict, Optional
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from src.cross_cluster_analysis import (
+from vibes_tracker.analysis.cross_cluster import (
     load_analyzed_data,
     extract_themes_by_cluster,
     calculate_cluster_similarity,
@@ -217,7 +215,7 @@ def generate_all_comparison_plots(df: pd.DataFrame):
     consensus_topics = identify_consensus_topics(themes_by_cluster, min_clusters=3)
 
     # Import echo chamber function
-    from src.cross_cluster_analysis import find_echo_chamber_themes
+    from vibes_tracker.analysis.cross_cluster import find_echo_chamber_themes
     echo_chamber = find_echo_chamber_themes(themes_by_cluster)
 
     # Generate plots
@@ -257,8 +255,8 @@ if __name__ == "__main__":
         os.chdir('../..')
 
     # Setup logger
-    from src.utils.logger import setup_logger
-    from src.utils.config_loader import load_config
+    from vibes_tracker.utils.logger import setup_logger
+    from vibes_tracker.utils.config_loader import load_config
 
     logger = setup_logger("cluster-comparison-plots", level=logging.INFO)
     config = load_config()

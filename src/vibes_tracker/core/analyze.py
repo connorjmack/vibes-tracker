@@ -10,15 +10,12 @@ import requests
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.utils.config_loader import load_config
-from src.utils.logger import setup_logger, QuotaTracker
-from src.utils.cache_manager import CacheManager
-from src.utils.metadata_manager import MetadataManager
-from src.utils.rate_limiter import TranscriptRateLimiter
-from src.temporal_analysis import save_historical_snapshot
+from vibes_tracker.utils.config_loader import load_config
+from vibes_tracker.utils.logger import setup_logger, QuotaTracker
+from vibes_tracker.utils.cache_manager import CacheManager
+from vibes_tracker.utils.metadata_manager import MetadataManager
+from vibes_tracker.utils.rate_limiter import TranscriptRateLimiter
+from vibes_tracker.analysis.temporal import save_historical_snapshot
 
 # --- Core Functions ---
 

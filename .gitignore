@@ -16,11 +16,28 @@ data/cache/analysis/*.json
 
 # Logs
 logs/*.log
+debug_run*.log
+
+# Coverage reports
+.coverage
+htmlcov/
+.pytest_cache/
 
 # IDE/OS files
 .DS_Store
 *.pyc
+*.swp
+.vscode/
+.idea/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
 
 # Figures
 figures/temporal/
 figures/5year_analysis/
+figures/comparison/
+figures/enhanced/

@@ -14,20 +14,17 @@ import sys
 import time
 import logging
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from dotenv import load_dotenv
-from src.utils.config_loader import load_config
-from src.utils.logger import setup_logger, QuotaTracker
-from src.utils.rate_limiter import RateLimiter, YouTubeAPIRateLimiter, TranscriptRateLimiter
+from vibes_tracker.utils.config_loader import load_config
+from vibes_tracker.utils.logger import setup_logger, QuotaTracker
+from vibes_tracker.utils.rate_limiter import RateLimiter, YouTubeAPIRateLimiter, TranscriptRateLimiter
 
 
 def test_imports():
     """Test that all rate limiting modules import correctly."""
     print("✓ Testing imports...")
     try:
-        from src.utils.rate_limiter import RateLimiter, YouTubeAPIRateLimiter, TranscriptRateLimiter
+        from vibes_tracker.utils.rate_limiter import RateLimiter, YouTubeAPIRateLimiter, TranscriptRateLimiter
         print("  ✓ Rate limiter classes imported successfully")
         return True
     except Exception as e:

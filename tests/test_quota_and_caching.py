@@ -4,13 +4,10 @@ import pytest
 from unittest.mock import MagicMock, patch
 import json
 
-# Add src to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-
-from utils.logger import QuotaTracker, QuotaExceededException
-from utils.rate_limiter import YouTubeAPIRateLimiter
-from utils.config_loader import load_config
-from ingest import get_recent_videos, resolve_channel_id
+from vibes_tracker.utils.logger import QuotaTracker, QuotaExceededException
+from vibes_tracker.utils.rate_limiter import YouTubeAPIRateLimiter
+from vibes_tracker.utils.config_loader import load_config
+from vibes_tracker.core.ingest import get_recent_videos, resolve_channel_id
 
 # --- Fixtures ---
 

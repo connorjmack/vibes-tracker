@@ -7,7 +7,7 @@ import threading
 from functools import wraps
 from typing import Optional, Callable, Any
 from googleapiclient.errors import HttpError
-from src.utils.logger import QuotaExceededException
+from vibes_tracker.utils.logger import QuotaExceededException
 from tenacity import (
     retry,
     stop_after_attempt,

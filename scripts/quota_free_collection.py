@@ -22,12 +22,9 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from youtube_transcript_api import YouTubeTranscriptApi
-from src.utils.config_loader import load_config
-from src.utils.logger import setup_logger
+from vibes_tracker.utils.config_loader import load_config
+from vibes_tracker.utils.logger import setup_logger
 
 
 def get_channel_id_from_handle(handle: str) -> str:

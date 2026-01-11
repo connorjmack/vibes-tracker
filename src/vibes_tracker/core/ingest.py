@@ -7,14 +7,11 @@ from datetime import datetime, timezone
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.utils.config_loader import load_config, get_project_root
-from src.utils.logger import setup_logger, QuotaTracker, QuotaExceededException
-from src.utils.metadata_manager import MetadataManager
-from src.utils.rate_limiter import YouTubeAPIRateLimiter
-from src.temporal_analysis import save_historical_snapshot
+from vibes_tracker.utils.config_loader import load_config, get_project_root
+from vibes_tracker.utils.logger import setup_logger, QuotaTracker, QuotaExceededException
+from vibes_tracker.utils.metadata_manager import MetadataManager
+from vibes_tracker.utils.rate_limiter import YouTubeAPIRateLimiter
+from vibes_tracker.analysis.temporal import save_historical_snapshot
 
 # --- Helper Functions ---
 

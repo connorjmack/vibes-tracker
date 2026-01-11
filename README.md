@@ -65,8 +65,8 @@ cd vibes-tracker
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install the package (this also installs all dependencies)
+pip install -e .
 ```
 
 ### API Keys
@@ -98,12 +98,12 @@ Edit `config/clusters.json` to define your channel groups:
 
 ```bash
 # Full pipeline: fetch data → analyze → visualize
-python src/main.py pipeline
+vibes-tracker pipeline
 
 # Or run stages individually
-python src/main.py ingest     # Fetch video metadata
-python src/main.py analyze    # Run AI analysis
-python src/main.py visualize  # Generate plots
+vibes-tracker ingest     # Fetch video metadata
+vibes-tracker analyze    # Run AI analysis
+vibes-tracker visualize  # Generate plots
 ```
 
 Check `figures/` for your visualizations and `data/analyzed_data.csv` for the results.
@@ -114,22 +114,22 @@ Check `figures/` for your visualizations and `data/analyzed_data.csv` for the re
 
 ```bash
 # Fetch video metadata from YouTube
-python src/main.py ingest
+vibes-tracker ingest
 
 # Analyze transcripts with Gemini
-python src/main.py analyze
+vibes-tracker analyze
 
 # Generate all visualizations
-python src/main.py visualize
+vibes-tracker visualize
 
 # Run temporal trend analysis
-python src/main.py temporal --days-back 30
+vibes-tracker temporal --days-back 30
 
 # Compare clusters
-python src/main.py compare
+vibes-tracker compare
 
 # Run complete pipeline
-python src/main.py pipeline
+vibes-tracker pipeline
 ```
 
 ### Incremental Mode (Recommended for Daily Use)
@@ -138,7 +138,7 @@ After the first run, use incremental mode to only process new videos:
 
 ```bash
 # Only fetch and analyze new videos since last run
-python src/main.py pipeline --incremental
+vibes-tracker pipeline --incremental
 
 # This is ~100x faster than re-processing everything
 ```
@@ -147,11 +147,11 @@ python src/main.py pipeline --incremental
 
 ```bash
 # Use more parallel workers for faster analysis (default: 10)
-python src/main.py analyze --workers 20
+vibes-tracker analyze --workers 20
 
 # Force full refresh (re-process everything)
-python src/main.py ingest --full-refresh
-python src/main.py analyze --full-refresh
+vibes-tracker ingest --full-refresh
+vibes-tracker analyze --full-refresh
 ```
 
 ### Historical Data Collection
@@ -160,13 +160,13 @@ Collect years of data efficiently:
 
 ```bash
 # Collect 3 years of monthly data (takes ~1 day, uses 4,320 API units)
-python src/main.py collect-historical \
+vibes-tracker collect-historical \
   --start-year 2022 \
   --end-year 2024 \
   --frequency monthly
 
 # Then run temporal analysis
-python src/main.py temporal --days-back 1095  # 3 years
+vibes-tracker temporal --days-back 1095  # 3 years
 ```
 
 See [docs/MULTI_YEAR_ANALYSIS_GUIDE.md](docs/MULTI_YEAR_ANALYSIS_GUIDE.md) for details.
@@ -323,7 +323,7 @@ Set up a cron job for automated daily updates:
 # Run at 2am daily
 0 2 * * * cd /path/to/vibes-tracker && \
   source .venv/bin/activate && \
-  python src/main.py pipeline --incremental
+  vibes-tracker pipeline --incremental
 ```
 
 ### Research Study
@@ -332,17 +332,17 @@ Collect and analyze historical data:
 
 ```bash
 # 1. Collect 3 years of data
-python src/main.py collect-historical \
+vibes-tracker collect-historical \
   --start-year 2022 --end-year 2024 --frequency monthly
 
 # 2. Run temporal analysis
-python src/main.py temporal --days-back 1095
+vibes-tracker temporal --days-back 1095
 
 # 3. Generate all visualizations
-python src/main.py visualize
+vibes-tracker visualize
 
 # 4. Compare clusters
-python src/main.py compare
+vibes-tracker compare
 ```
 
 ### Event Analysis
@@ -356,10 +356,10 @@ python scripts/collect_historical_data.py \
   --end-date 2024-12-01
 
 # Analyze the data
-python src/main.py analyze
+vibes-tracker analyze
 
 # Generate visualizations
-python src/main.py visualize
+vibes-tracker visualize
 ```
 
 ## Troubleshooting
