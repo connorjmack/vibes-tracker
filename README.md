@@ -43,6 +43,8 @@ More daily reports available in `data/reports/` directory with word clouds and v
 ## Features
 
 - **Automated data collection** from YouTube channels (quota-optimized)
+- **Daily reporting system** - automated daily word clouds and view statistics
+- **Retroactive transcript search** - download complete historical datasets for any channel
 - **AI-powered analysis** using Google's Gemini to extract themes, sentiment, and framing
 - **Temporal tracking** - see how topics evolve over weeks, months, or years
 - **Cross-cluster comparison** - identify consensus topics vs echo chambers
@@ -131,6 +133,47 @@ python src/main.py compare
 # Run complete pipeline
 python src/main.py pipeline
 ```
+
+### Daily Reporting
+
+Generate a daily report with word clouds and view statistics for videos published on a specific date:
+
+```bash
+# Generate report for today's videos
+python src/daily_report.py
+
+# Generate report for a specific date
+python src/daily_report.py --date 2025-01-10
+```
+
+The report includes:
+- Word clouds for top content across all clusters (filtered by top 67% of views)
+- Cluster-specific word clouds with custom color schemes
+- View distribution charts showing individual videos as stacked segments
+- All outputs saved to `data/reports/YYYY-MM-DD/`
+
+### Retroactive Transcript Collection
+
+Download complete historical datasets for any YouTube channel:
+
+```bash
+# Download all available transcripts from 2020-2023
+python scripts/retroactive_search.py --channel @joerogan --start-year 2020 --end-year 2023
+
+# Limit downloads per run (useful for rate limiting)
+python scripts/retroactive_search.py --channel @joerogan --start-year 2020 --end-year 2023 --max-per-run 50
+
+# Use specific date ranges
+python scripts/retroactive_search.py --channel @joerogan --start-date 2020-06-01 --end-date 2021-12-31
+```
+
+Features:
+- **Smart Resume**: Checks for existing transcripts and only downloads missing ones
+- **Resilient**: Saves each transcript immediately - no data loss if interrupted
+- **Progress Tracking**: Maintains progress in JSON file, fully resumable
+- **Organized Storage**: Saves transcripts to `data/{channel}/` with clear naming
+
+See [docs/RETROACTIVE_SEARCH.md](docs/RETROACTIVE_SEARCH.md) for detailed documentation.
 
 ### Incremental Mode (Recommended for Daily Use)
 
@@ -320,11 +363,18 @@ vibes-tracker/
 Set up a cron job for automated daily updates:
 
 ```bash
-# Run at 2am daily
+# Run at 2am daily - collect new videos and generate daily report
 0 2 * * * cd /path/to/vibes-tracker && \
   source .venv/bin/activate && \
-  python src/main.py pipeline --incremental
+  python src/main.py pipeline --incremental && \
+  python src/daily_report.py
 ```
+
+This workflow:
+1. Fetches new videos from all configured channels
+2. Analyzes only new content (incremental mode)
+3. Generates daily word clouds and view statistics
+4. Saves reports to `data/reports/YYYY-MM-DD/`
 
 ### Research Study
 
@@ -362,6 +412,22 @@ python src/main.py analyze
 python src/main.py visualize
 ```
 
+### Channel Deep Dive
+
+Build a complete dataset for a specific channel:
+
+```bash
+# Download all available transcripts for a channel
+python scripts/retroactive_search.py \
+  --channel @YourTargetChannel \
+  --start-year 2020 \
+  --end-year 2024 \
+  --max-per-run 100
+
+# The script is fully resumable - run it multiple times if needed
+# It will skip already-downloaded transcripts and continue where it left off
+```
+
 ## Troubleshooting
 
 **No transcripts available:**
@@ -387,6 +453,9 @@ python src/main.py visualize
 ## Documentation
 
 - [Multi-Year Analysis Guide](docs/MULTI_YEAR_ANALYSIS_GUIDE.md) - How to collect and analyze years of data
+- [Retroactive Search Guide](docs/RETROACTIVE_SEARCH.md) - Download complete historical datasets for any channel
+- [Getting Started Guide](docs/GETTING_STARTED.md) - Step-by-step setup and usage instructions
+- [Technical Guide](docs/TECHNICAL_GUIDE.md) - Architecture, performance tuning, and advanced usage
 - [Implementation Summary](results/IMPLEMENTATION_SUMMARY.md) - Technical details of all features
 - [Phase 2 Test Report](results/phase2-test/WORDCLOUDS_AND_MULTIYEAR.md) - Temporal analysis capabilities
 - [Phase 3 Test Report](results/phase3-test-report.md) - Performance improvements
