@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from src.utils.config_loader import load_config
 from src.utils.logger import setup_logger, QuotaTracker
+from src.utils.rate_limiter import YouTubeAPIRateLimiter
 
 # Progress tracking file
 PROGRESS_FILE = "data/historical_collection_progress.json"
@@ -272,7 +273,7 @@ def period_already_collected(start_date: str, progress: dict) -> bool:
 
 def collect_single_period(youtube, channel_id_cache, playlist_cache, clusters,
                           start_date: str, end_date: str,
-                          logger, quota_tracker) -> int:
+                          logger, quota_tracker, rate_limiter=None) -> int:
     """
     Collect data for a single time period.
 
@@ -299,8 +300,12 @@ def collect_single_period(youtube, channel_id_cache, playlist_cache, clusters,
                 playlist_id = playlist_cache.get(channel_id)
 
                 if not playlist_id:
-                    # Cache miss - fetch and cache playlist ID
-                    res = youtube.channels().list(id=channel_id, part='contentDetails').execute()
+                    # Cache miss - fetch and cache playlist ID with rate limiting
+                    @(rate_limiter.rate_limit_youtube_api if rate_limiter else lambda f: f)
+                    def _get_playlist():
+                        return youtube.channels().list(id=channel_id, part='contentDetails').execute()
+
+                    res = _get_playlist()
                     quota_tracker.log_youtube_api_call(1, f"get playlist for {handle}")
 
                     if 'items' not in res or len(res['items']) == 0:
@@ -316,13 +321,16 @@ def collect_single_period(youtube, channel_id_cache, playlist_cache, clusters,
 
                 # OPTIMIZATION 2: Reduced from 5 to 2 pages (100 videos max per channel per month)
                 for _ in range(2):  # Max 2 pages (100 videos) per channel per period
-                    request = youtube.playlistItems().list(
-                        playlistId=playlist_id,
-                        part='snippet',
-                        maxResults=50,
-                        pageToken=page_token
-                    )
-                    res = request.execute()
+                    @(rate_limiter.rate_limit_youtube_api if rate_limiter else lambda f: f)
+                    def _get_playlist_items():
+                        return youtube.playlistItems().list(
+                            playlistId=playlist_id,
+                            part='snippet',
+                            maxResults=50,
+                            pageToken=page_token
+                        ).execute()
+
+                    res = _get_playlist_items()
                     quota_tracker.log_youtube_api_call(1, f"get videos from {handle}")
 
                     for item in res['items']:
@@ -399,6 +407,9 @@ def run_incremental_collection(start_year: int, end_year: int, max_periods_per_r
 
     youtube = build('youtube', 'v3', developerKey=API_KEY)
 
+    # Initialize rate limiter for YouTube API
+    rate_limiter = YouTubeAPIRateLimiter(config, quota_tracker, logger)
+
     # Load clusters and channel cache
     with open(config.paths.cluster_config, 'r') as f:
         clusters = json.load(f)
@@ -461,7 +472,7 @@ def run_incremental_collection(start_year: int, end_year: int, max_periods_per_r
             num_videos = collect_single_period(
                 youtube, channel_id_cache, playlist_cache, clusters,
                 start_date, end_date,
-                logger, quota_tracker
+                logger, quota_tracker, rate_limiter
             )
 
             # Mark as completed
