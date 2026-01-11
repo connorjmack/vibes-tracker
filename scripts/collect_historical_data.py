@@ -18,7 +18,7 @@ from src.utils.config_loader import load_config
 from src.utils.logger import setup_logger, QuotaTracker
 from src.analyze import get_transcript
 from src.utils.cache_manager import CacheManager
-from src.utils.rate_limiter import TranscriptRateLimiter
+from src.utils.rate_limiter import TranscriptRateLimiter, YouTubeAPIRateLimiter
 from tqdm import tqdm
 
 def fetch_transcripts_for_period(df, config, logger):
@@ -60,7 +60,7 @@ def fetch_transcripts_for_period(df, config, logger):
 
 def fetch_videos_by_date_range(youtube, channel_id, channel_name,
                                 published_after, published_before,
-                                logger, quota_tracker, max_results=50):
+                                logger, quota_tracker, rate_limiter=None, max_results=50):
     """
     Fetch videos from a channel within a specific date range.
 
@@ -72,6 +72,7 @@ def fetch_videos_by_date_range(youtube, channel_id, channel_name,
         published_before: ISO 8601 date string
         logger: Logger instance
         quota_tracker: QuotaTracker instance
+        rate_limiter: YouTubeAPIRateLimiter instance (optional)
         max_results: Maximum videos to fetch per channel
 
     Returns:
@@ -80,8 +81,12 @@ def fetch_videos_by_date_range(youtube, channel_id, channel_name,
     videos = []
 
     try:
-        # Get the uploads playlist
-        res = youtube.channels().list(id=channel_id, part='contentDetails').execute()
+        # Get the uploads playlist with rate limiting
+        @(rate_limiter.rate_limit_youtube_api if rate_limiter else lambda f: f)
+        def _get_uploads_playlist():
+            return youtube.channels().list(id=channel_id, part='contentDetails').execute()
+
+        res = _get_uploads_playlist()
         quota_tracker.log_youtube_api_call(1, f"get uploads playlist for {channel_name}")
         playlist_id = res['items'][0]['contentDetails']['relatedPlaylists']['uploads']
 
@@ -90,13 +95,16 @@ def fetch_videos_by_date_range(youtube, channel_id, channel_name,
         videos_fetched = 0
 
         while videos_fetched < max_results:
-            request = youtube.playlistItems().list(
-                playlistId=playlist_id,
-                part='snippet',
-                maxResults=min(50, max_results - videos_fetched),
-                pageToken=page_token
-            )
-            res = request.execute()
+            @(rate_limiter.rate_limit_youtube_api if rate_limiter else lambda f: f)
+            def _get_playlist_items():
+                return youtube.playlistItems().list(
+                    playlistId=playlist_id,
+                    part='snippet',
+                    maxResults=min(50, max_results - videos_fetched),
+                    pageToken=page_token
+                ).execute()
+
+            res = _get_playlist_items()
             quota_tracker.log_youtube_api_call(1, f"get videos from {channel_name}")
 
             for item in res['items']:
@@ -174,6 +182,9 @@ def collect_historical_period(start_date, end_date, output_dir="data/historical"
 
     youtube = build('youtube', 'v3', developerKey=API_KEY)
 
+    # Initialize rate limiter for YouTube API
+    rate_limiter = YouTubeAPIRateLimiter(config, quota_tracker, logger)
+
     # Load clusters
     with open(config.paths.cluster_config, 'r') as f:
         clusters = json.load(f)
@@ -211,7 +222,7 @@ def collect_historical_period(start_date, end_date, output_dir="data/historical"
             videos = fetch_videos_by_date_range(
                 youtube, channel_id, handle,
                 published_after, published_before,
-                logger, quota_tracker
+                logger, quota_tracker, rate_limiter
             )
 
             # Tag with cluster
@@ -334,21 +345,27 @@ def collect_channel_history(channel_handle, start_date, end_date, output_dir="da
         return
 
     youtube = build('youtube', 'v3', developerKey=API_KEY)
-    
+
+    # Initialize rate limiter for YouTube API
+    rate_limiter = YouTubeAPIRateLimiter(config, quota_tracker, logger)
+
     # 1. Resolve Channel ID
     cache_path = config.ingest.channel_id_cache_path
     channel_id = None
-    
+
     if os.path.exists(cache_path):
         with open(cache_path, 'r') as f:
             cache = json.load(f)
             channel_id = cache.get(channel_handle)
-    
+
     if not channel_id:
         logger.info(f"Resolving Channel ID for {channel_handle}...")
         try:
-            req = youtube.search().list(part="snippet", type="channel", q=channel_handle, maxResults=1)
-            res = req.execute()
+            @rate_limiter.rate_limit_youtube_api
+            def _search_channel():
+                return youtube.search().list(part="snippet", type="channel", q=channel_handle, maxResults=1).execute()
+
+            res = _search_channel()
             if res['items']:
                 channel_id = res['items'][0]['snippet']['channelId']
                 logger.info(f"Found ID: {channel_id}")
@@ -376,14 +393,14 @@ def collect_channel_history(channel_handle, start_date, end_date, output_dir="da
     else:
         published_after = f"{start_date}T00:00:00Z"
         published_before = f"{end_date}T00:00:00Z"
-        
+
         logger.info(f"Fetching video list for {channel_handle} ({start_date} to {end_date})...")
-        
+
         # We use a large max_results because we want EVERYTHING in the period
         videos = fetch_videos_by_date_range(
             youtube, channel_id, channel_handle,
             published_after, published_before,
-            logger, quota_tracker,
+            logger, quota_tracker, rate_limiter,
             max_results=5000 # Upper limit for safety, likely covers years
         )
         

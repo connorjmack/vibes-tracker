@@ -39,10 +39,10 @@ rate_limiting:
   # Transcript API settings (web scraping)
   transcript_api:
     enabled: true
-    min_delay_seconds: 10.0          # Faster for free API (no official quota)
-    max_delay_seconds: 20.0          # Conservative max to prevent IP blocking
-    delay_jitter: 0.3               # Random variance (±30%)
-    max_retries: 5                  # Fewer retries for web scraping
+    min_delay_seconds: 2.0           # Reduced for faster multi-year collection
+    max_delay_seconds: 5.0           # Still conservative to prevent IP blocking
+    delay_jitter: 0.3                # Random variance (±30%)
+    max_retries: 5                   # Retries with exponential backoff
 
   # Batch operation settings
   batch_operations:
