@@ -21,6 +21,11 @@ logs/*.log
 .DS_Store
 *.pyc
 
+# Test artifacts
+.coverage
+htmlcov/
+.pytest_cache/
+
 # Figures
 figures/temporal/
 figures/5year_analysis/
