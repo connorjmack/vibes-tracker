@@ -33,6 +33,10 @@ Examples:
   # Cross-cluster comparison
   vibes-tracker compare
 
+  # Get a single video transcript
+  vibes-tracker transcript https://youtube.com/watch?v=VIDEO_ID
+  vibes-tracker transcript VIDEO_ID -o transcript.txt
+
   # Combined workflow
   vibes-tracker pipeline --incremental
         """
@@ -157,6 +161,36 @@ Examples:
         help='Collection frequency (default: monthly)'
     )
 
+    # --- Transcript Command ---
+    transcript_parser = subparsers.add_parser(
+        'transcript',
+        help='Fetch and display a formatted transcript for a single YouTube video'
+    )
+    transcript_parser.add_argument(
+        'video',
+        help='YouTube video URL or video ID'
+    )
+    default_transcript_dir = os.path.expanduser(
+        '~/Library/CloudStorage/OneDrive-UCSanDiego/Obsidian/ideas/source_material'
+    )
+    transcript_parser.add_argument(
+        '-o', '--output-dir',
+        type=str,
+        default=default_transcript_dir,
+        help=f'Directory to save transcript (default: {default_transcript_dir})'
+    )
+    transcript_parser.add_argument(
+        '--no-timestamps',
+        action='store_true',
+        help='Omit [MM:SS] timestamp markers'
+    )
+    transcript_parser.add_argument(
+        '--pause-gap',
+        type=float,
+        default=1.5,
+        help='Seconds of silence to trigger a paragraph break (default: 1.5)'
+    )
+
     # --- Pipeline Command (Run all stages) ---
     pipeline_parser = subparsers.add_parser(
         'pipeline',
@@ -198,6 +232,8 @@ Examples:
         run_compare(args)
     elif args.command == 'collect-historical':
         run_collect_historical(args)
+    elif args.command == 'transcript':
+        run_transcript(args)
     elif args.command == 'pipeline':
         run_pipeline(args)
 
@@ -342,6 +378,51 @@ def run_collect_historical(args):
     spec.loader.exec_module(module)
 
     print("✅ Historical data collection complete!")
+
+
+def run_transcript(args):
+    """Fetch and display a formatted transcript for a single video."""
+    from vibes_tracker.core.transcript import (
+        extract_video_id,
+        fetch_transcript_segments,
+        fetch_video_title,
+        format_transcript,
+        _sanitize_filename,
+    )
+
+    try:
+        video_id = extract_video_id(args.video)
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+
+    title = fetch_video_title(video_id)
+    display_name = title or video_id
+    print(f"Fetching transcript for: {display_name}")
+
+    try:
+        snippets = fetch_transcript_segments(video_id)
+    except Exception as e:
+        print(f"Error: Could not fetch transcript for {video_id}: {e}")
+        sys.exit(1)
+
+    formatted = format_transcript(
+        snippets,
+        pause_threshold=args.pause_gap,
+        timestamps=not args.no_timestamps,
+    )
+
+    # Build filename from title if available, fall back to video ID
+    if title:
+        filename = f"{_sanitize_filename(title)} ({video_id}).txt"
+    else:
+        filename = f"{video_id}.txt"
+
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / filename
+    output_path.write_text(formatted, encoding='utf-8')
+    print(f"Transcript saved to {output_path}")
 
 
 def run_pipeline(args):
